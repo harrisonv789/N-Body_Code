@@ -4,28 +4,28 @@ from . import mathematics as math
 from .time import Time
 from .state import State
 
-# Takes in an Input position, Velocity, Accleration and Delta Time
-def step_leapfrog(state: State, dt: float):
-
-    # Set up the initial velocity
-    state.v += 0.5 * dt * state.a
-
-    # Calculate the new parameters
-    state.x += dt * state.v
-    state.a = math.calculate_acceleration(state.x)
-    state.v += 0.5 * dt * state.a
-
-    # Return the values
-    return state
-
-
-
 # Runs the integration
 class Integrator:
 
     # Initialise the integrator with some timestep
     def __init__ (self, output: str = "output.dat"):
         self.output = output
+
+
+    # Takes in an Input position, Velocity, Accleration and Delta Time
+    def step_leapfrog(state: State, dt: float):
+
+        # Set up the initial velocity
+        state.v += 0.5 * dt * state.a
+
+        # Calculate the new parameters
+        state.x += dt * state.v
+        state.a = math.calculate_acceleration(state.x)
+        state.v += 0.5 * dt * state.a
+
+        # Return the values
+        return state
+
 
     # Call the integrator with a starting position, velocity and acceleration
     def execute (self, time: Time, state: State):
