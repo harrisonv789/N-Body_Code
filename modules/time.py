@@ -13,6 +13,12 @@ class Time:
     # Stores the final time
     end: float = 1
 
+    # The number of total steps
+    steps_max: 0
+
+    # The number of current steps
+    steps: int = 0
+
     # Initialiser constructor
     def __init__ (self, start_time: float = 0.0, end_time: float = 1.0, delta_time: float = 0.01):
         self.start = start_time
@@ -23,10 +29,18 @@ class Time:
     # Function that resets the time
     def reset (self):
         self.time = self.start
+        self.steps = 0
+        self.steps_max = int((self.end - self.start) / self.delta)
 
     # Function that increments the time
     def increment (self):
         self.time += self.delta
+        self.steps += 1
+
+    # Returns the progress as a fraction from 0 to 1
+    @property
+    def progress (self):
+        return (self.time - self.start) / (self.end - self.start)
 
     # Function that returns whether or not the time is running
     @property

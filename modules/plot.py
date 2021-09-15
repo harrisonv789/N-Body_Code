@@ -26,7 +26,7 @@ class Plotter:
             headers = [h.strip() for h in file.readline().split("     ")]
         
         # Print all the options from the headers
-        print("\nPlease select from the following options:\n")
+        print("\n\nPlease select from the following options:\n")
         for idx, h in enumerate(headers):
             print("\t%s(%d) %s" % (Color.CYAN, idx, h))
         print("\n\t%s(Q) QUIT%s\n" % (Color.GREEN, Color.NORMAL))

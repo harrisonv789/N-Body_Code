@@ -16,8 +16,8 @@ from modules.plot import Plotter
 ##########################################################################
 
 # Simulation parameters
-dt = 0.0010             # The step size
-tmax = 1.0 * 3.141596   # The max timestep
+dt = 0.001             # The step size
+tmax = 10 * 3.141596   # The max timestep
 output = "output.dat"   # The output filename
 plot_data = True        # Whether or not to plot data
 

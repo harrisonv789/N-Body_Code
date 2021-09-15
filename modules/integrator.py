@@ -1,5 +1,5 @@
 import numpy as np
-import os
+import os, sys
 from . import mathematics as math
 from .time import Time
 from .state import State
@@ -32,10 +32,14 @@ class Integrator:
 
         # Call check to see if needing to update
         if not self.needs_update(time, state):
+            print("Initial conditions unchanged.")
             return
 
         # Clear the output and open the file
         with open(self.output, "w") as file:
+
+            # Print status
+            print("Performing Integration...")
 
             # Add the header row
             file.write("   time     pos_x     pos_y     pos_z     vel_x     vel_y     vel_z     acc_x     acc_y     acc_z   \n")
@@ -51,6 +55,11 @@ class Integrator:
 
                 # Increment the time
                 time.increment()
+
+                # Output the progress and flush the buffer
+                if time.steps % int(time.steps_max / 50) == 0:
+                    print("=", end="")
+                    sys.stdout.flush()
 
 
     # Determines if the data needs to be run again
