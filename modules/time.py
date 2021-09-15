@@ -28,8 +28,9 @@ class Time:
     def increment (self):
         self.time += self.delta
 
-    # Function that returns whether or not the time is at the end
-    def valid (self):
+    # Function that returns whether or not the time is running
+    @property
+    def running (self):
         return self.time < self.end
 
     # Returns the value of the time

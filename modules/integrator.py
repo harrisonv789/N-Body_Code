@@ -24,15 +24,14 @@ def step_leapfrog(state: State, dt: float):
 class Integrator:
 
     # Initialise the integrator with some timestep
-    def __init__ (self, time: Time, output: str = "output.dat"):
-        self.time = time
+    def __init__ (self, output: str = "output.dat"):
         self.output = output
 
     # Call the integrator with a starting position, velocity and acceleration
-    def execute (self, state: State):
+    def execute (self, time: Time, state: State):
 
         # Call check to see if needing to update
-        if not self.needs_update(state):
+        if not self.needs_update(time, state):
             return
 
         # Clear the output and open the file
@@ -42,28 +41,28 @@ class Integrator:
             file.write("  time  \t  pos_x  \t  pos_y  \t  pos_z  \t  vel_x  \t  vel_y  \t  vel_z  \t  acc_x  \t  acc_y  \t  acc_z  \n")
 
             # Loop while the time is less than maximum
-            while self.time.valid():
+            while time.running:
 
                 # Run the integrator
-                state = step_leapfrog(state, self.time.delta)
+                state = step_leapfrog(state, time.delta)
 
                 # Write the data to the output
-                file.write("%8.4f\t%s\n" % (self.time(), state.output()))
+                file.write("%8.4f\t%s\n" % (time(), state.output()))
 
                 # Increment the time
-                self.time.increment()
+                time.increment()
 
 
     # Determines if the data needs to be run again
-    def needs_update (self, state):
+    def needs_update (self, time, state):
         if os.path.isfile("initial.dat"):
             with open("initial.dat", "r") as file:
-                if file.read() == "%s\n%s" % (str(self.time), str(state)):
+                if file.read() == "%s\n%s" % (str(time), str(state)):
                     return False
 
         # Update the file
         with open("initial.dat", "w") as file:
-            file.write("%s\n%s" % (str(self.time), str(state)))
+            file.write("%s\n%s" % (str(time), str(state)))
 
         # Returns a requirement to restart
         return True

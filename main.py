@@ -23,7 +23,7 @@ output = "output.dat"   # The output filename
 # Store the initial conditions
 a = 1.0
 e = 0.99
-theta = 0
+theta = 0.0
 
 
 
@@ -46,14 +46,16 @@ time = Time(0, tmax, dt)
 # INTEGRATOR
 ##########################################################################
 
-inter = integrator.Integrator(time, output)
-inter.execute(state)
+inter = integrator.Integrator(output)
+inter.execute(time, state)
+
 
 
 ##########################################################################
 # DATA AND PLOTS
 ##########################################################################
 
+# Read the data from the output
 data = np.genfromtxt(output, delimiter='\t', names=True)
 
 # Plot the x-y plane
