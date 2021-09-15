@@ -1,14 +1,16 @@
 import numpy as np
+from .vector import Vector
+from .state import State
 
 # Calculates the Acceleration from some Position input
-def calculate_acceleration (x: float) -> float:
-    # Create an empty array
-    a = np.zeros(len(x))
+def calculate_acceleration (x: Vector) -> Vector:
 
     # Compute the position value
-    r2 = np.dot(x,x)
+    r2 = x.dot(x)
     r = np.sqrt(r2)
-    r3 = r2 * r
+    r3 = float(r2 * r)
+
+    a = Vector()
 
     # Calculate the acceleration
     a = x * (-1.0 / r3)
