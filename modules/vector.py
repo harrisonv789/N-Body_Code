@@ -154,6 +154,10 @@ class Vector:
     def __str__ (self):
         return "X: %f, Y: %f, Z: %f" % (self.x, self.y, self.z)
 
+    # To output file
+    def output (self):
+        return "%8.4f\t%8.4f\t%8.4f" % (self.x, self.y, self.z)
+
     # Converts the value to a list
     @property
     def array (self) -> list:

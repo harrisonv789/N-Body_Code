@@ -26,3 +26,7 @@ class State:
     # Checks if the state is valid
     def valid (self) -> bool:
         return self.x != None and self.v != None and self.a != None
+
+    # Gets the output
+    def output (self) -> str:
+        return "%s\t%s\t%s" % (self.x.output(), self.v.output(), self.a.output())

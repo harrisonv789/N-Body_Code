@@ -39,3 +39,7 @@ class Time:
     # Returns the float value of the time
     def __float__ (self):
         return self.time
+
+    # Returns the string form
+    def __str__ (self):
+        return "Time: %8.4f, Start: %8.4f, End: %8.4f, Delta: %8.4f" % (self.time, self.start, self.end, self.delta)
