@@ -13,7 +13,7 @@ class Integrator:
 
 
     # Takes in an Input position, Velocity, Accleration and Delta Time
-    def step_leapfrog(state: State, dt: float):
+    def step_leapfrog(self, state: State, dt: float):
 
         # Set up the initial velocity
         state.v += 0.5 * dt * state.a
@@ -38,13 +38,13 @@ class Integrator:
         with open(self.output, "w") as file:
 
             # Add the header row
-            file.write("  time  \t  pos_x  \t  pos_y  \t  pos_z  \t  vel_x  \t  vel_y  \t  vel_z  \t  acc_x  \t  acc_y  \t  acc_z  \n")
+            file.write("   time     pos_x     pos_y     pos_z     vel_x     vel_y     vel_z     acc_x     acc_y     acc_z   \n")
 
             # Loop while the time is less than maximum
             while time.running:
 
                 # Run the integrator
-                state = step_leapfrog(state, time.delta)
+                state = self.step_leapfrog(state, time.delta)
 
                 # Write the data to the output
                 file.write("%8.4f\t%s\n" % (time(), state.output()))

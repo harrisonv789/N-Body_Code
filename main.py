@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
 # Import all needed packages
-import numpy as np
-import matplotlib.pyplot as plt
+from matplotlib.pyplot import plot
 import modules.mathematics as math
-import modules.integrator as integrator
+from modules.integrator import Integrator
 from modules.time import Time
 from modules.vector import Vector
 from modules.state import State
+from modules.plot import Plotter
 
 
 
@@ -16,14 +16,15 @@ from modules.state import State
 ##########################################################################
 
 # Simulation parameters
-dt = 0.0001             # The step size
-tmax = 2.0 * np.pi      # The max time
+dt = 0.0010             # The step size
+tmax = 1.0 * 3.141596   # The max timestep
 output = "output.dat"   # The output filename
+plot_data = True        # Whether or not to plot data
 
-# Store the initial conditions
-a = 1.0
-e = 0.99
-theta = 0.0
+# Initial conditions
+a = 1.0         # Ellipse radius
+e = 0.1         # Ellipse eccentricity
+theta = 0.0     # Ellipse angle
 
 
 
@@ -31,7 +32,7 @@ theta = 0.0
 # INITIAL CONDITIONS
 ##########################################################################
 
-# Store the initial position, velociy and acceleration
+# Store the initial position, velocity and acceleration
 x = Vector(math.get_kepler_x(a, e, theta),   0.0,                                0.0)
 v = Vector(0.0,                              math.get_kepler_v(a, e, theta),     0.0)
 a = math.calculate_acceleration(x)
@@ -46,37 +47,18 @@ time = Time(0, tmax, dt)
 # INTEGRATOR
 ##########################################################################
 
-inter = integrator.Integrator(output)
+inter = Integrator(output)
 inter.execute(time, state)
 
 
 
 ##########################################################################
-# DATA AND PLOTS
+# CREATES PLOT
 ##########################################################################
 
-# Read the data from the output
-data = np.genfromtxt(output, delimiter='\t', names=True)
+# If plotting data
+if plot_data:
 
-# Plot the x-y plane
-plt.plot(data["pos_x"], data["pos_y"], 'o', markersize=1)
-plt.plot(0, 0, '*')
-plt.axis('equal')
-plt.xlabel("X Position")
-plt.ylabel("Y Position")
-plt.title("Position Graph")
-plt.show()
-
-# Plot the x-vx plane
-plt.plot(data["pos_x"], data["vel_x"], 'o', markersize=1)
-plt.xlabel("X Position")
-plt.ylabel("$v_x$ Velocity")
-plt.title("X Position-Velocity Phase Graph")
-plt.show()
-
-# Plot the y-vy plane
-plt.plot(data["pos_y"], data["vel_y"], 'o', markersize=1)
-plt.xlabel("Y Position")
-plt.ylabel("$v_y$ Velocity")
-plt.title("Y Position-Velocity Phase Graph")
-plt.show()
+    # Creates a plotter with the outputs
+    plotter = Plotter(output=output)
+    plotter.ask_plot()
