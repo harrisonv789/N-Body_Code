@@ -23,7 +23,7 @@ class Plotter:
     def ask_plot (self):
         # Gets the options from the output file
         with open(self.output, "r") as file:
-            headers = [h.strip() for h in file.readline().split("     ")]
+            headers = [h.strip() for h in file.readline().strip().split(" ") if h != ""]
         
         # Print all the options from the headers
         print("\n\nPlease select from the following options:\n")

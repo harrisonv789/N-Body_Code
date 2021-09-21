@@ -173,3 +173,9 @@ class Vector:
     def dot (self, other):
         return (self.x * other.x) + (self.y * other.y) + (self.z * other.z)
 
+    # Cross product
+    def cross (self, other):
+        i = self.y * other.z - self.z * other.y
+        j = self.z * other.x - self.x * other.z
+        k = self.x * other.y - self.y * other.x
+        return Vector(i, j, k)

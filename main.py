@@ -24,7 +24,7 @@ plot_data = True        # Whether or not to plot data
 
 # Initial conditions
 a = 1.0         # Ellipse radius
-e = 0.1         # Ellipse eccentricity
+e = 0.5         # Ellipse eccentricity
 theta = 0.0     # Ellipse angle
 
 

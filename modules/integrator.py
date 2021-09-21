@@ -24,6 +24,9 @@ class Integrator:
         body.state.a = math.calculate_acceleration(body.state.x)
         body.state.v += 0.5 * dt * body.state.a
 
+        # Update the body
+        body.update()
+
         # Return the values
         return body
 

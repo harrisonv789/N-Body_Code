@@ -19,6 +19,21 @@ class State:
         self.v = v
         self.a = a
 
+    # Returns the position
+    @property
+    def position (self) -> Vector:
+        return self.x
+
+    # Returns the velocity
+    @property
+    def velocity (self) -> Vector:
+        return self.v
+
+    # Returns the acceleration
+    @property
+    def acceleration (self) -> Vector:
+        return self.a
+
     # Checks if the state is valid
     def valid (self) -> bool:
         return self.x != None and self.v != None and self.a != None
