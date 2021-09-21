@@ -13,7 +13,6 @@ class Plotter:
         self.output = kwargs.get("output", "output.dat")
         self.load_data()
 
-
     # Loads the data and stores it in a object
     def load_data (self):
         self.data = np.genfromtxt(self.output, names=True)
@@ -71,8 +70,8 @@ class Plotter:
     def plot (self, x, y_plots, args):
 
         # Check arguments prior to plotting
-        marker = "" if "lines" in args else "o"
-        linestyle = 'solid' if "lines" in args else "none"
+        marker = "o" if "points" in args else ""
+        linestyle = 'none' if "points" in args else "solid"
 
         # Loop through each y plot
         for y in y_plots:
@@ -91,7 +90,9 @@ class Plotter:
         if "logy" in args:
             plt.yscale("log")
         if "star" in args:
-            plt.plot(0, 0, "*")
+            plt.plot(0, 0, "*", markersize=10)
+        if "grid" in args:
+            plt.grid()
 
         # Show the plot
         plt.show()

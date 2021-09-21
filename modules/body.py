@@ -1,6 +1,7 @@
 import numpy as np
 from .vector import Vector
 from .state import State
+from .model import *
 
 # Stores all information related to a body
 class Body:

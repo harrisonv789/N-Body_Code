@@ -2,13 +2,14 @@
 
 # Import all needed packages
 from matplotlib.pyplot import plot
-import modules.mathematics as math
 from modules.integrator import Integrator
 from modules.time import Time
 from modules.vector import Vector
 from modules.state import State
 from modules.plot import Plotter
 from modules.body import Body
+from modules.constants import *
+from modules.model import *
 
 
 
@@ -18,7 +19,7 @@ from modules.body import Body
 
 # Simulation parameters
 dt = 0.01             # The step size
-tmax = 6 * 3.141596   # The max timestep
+tmax = 6 * PI   # The max timestep
 output = "output.dat"   # The output filename
 plot_data = True        # Whether or not to plot data
 
@@ -33,10 +34,13 @@ theta = 0.0     # Ellipse angle
 # INITIAL CONDITIONS
 ##########################################################################
 
+# Store the current model
+model = KeplerModel()
+
 # Store the initial position, velocity and acceleration
-x = Vector(math.get_kepler_x(a, e, theta),   0.0,                                0.0)
-v = Vector(0.0,                              math.get_kepler_v(a, e, theta),     0.0)
-a = math.calculate_acceleration(x)
+x = model.initial_position(a, e, theta)
+v = model.initial_velocity(a, e, theta)
+a = model.calc_acceleration(x)
 
 # Create the initial state and time
 state = State(x, v, a)
@@ -49,7 +53,7 @@ time = Time(0, tmax, dt)
 # INTEGRATOR
 ##########################################################################
 
-inter = Integrator(output)
+inter = Integrator(model, output)
 inter.execute(time, body)
 
 

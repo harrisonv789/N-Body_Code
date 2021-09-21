@@ -1,15 +1,15 @@
 import numpy as np
 import os, sys
-from . import mathematics as math
 from .time import Time
-from .state import State
 from .body import Body
+from .model import Model
 
 # Runs the integration
 class Integrator:
 
     # Initialise the integrator with some timestep
-    def __init__ (self, output: str = "output.dat"):
+    def __init__ (self, model: Model, output: str = "output.dat"):
+        self.model = model
         self.output = output
 
 
@@ -21,7 +21,7 @@ class Integrator:
 
         # Calculate the new parameters
         body.state.x += dt * body.state.v
-        body.state.a = math.calculate_acceleration(body.state.x)
+        body.state.a = self.model.calc_acceleration(body.state.x)
         body.state.v += 0.5 * dt * body.state.a
 
         # Update the body
@@ -35,7 +35,7 @@ class Integrator:
     def execute (self, time: Time, body: Body):
 
         # Call check to see if needing to update
-        if not self.needs_update(time, body) and False:
+        if not self.needs_update(time, body):
             print("Initial conditions unchanged.")
             return
 
