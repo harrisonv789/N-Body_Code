@@ -17,14 +17,14 @@ from modules.body import Body
 ##########################################################################
 
 # Simulation parameters
-dt = 0.1             # The step size
+dt = 0.001             # The step size
 tmax = 2 * 3.141596   # The max timestep
 output = "output.dat"   # The output filename
 plot_data = True        # Whether or not to plot data
 
 # Initial conditions
 a = 1.0         # Ellipse radius
-e = 0.5         # Ellipse eccentricity
+e = 0.8         # Ellipse eccentricity
 theta = 0.0     # Ellipse angle
 
 

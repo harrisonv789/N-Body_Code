@@ -67,6 +67,8 @@ class Plotter:
             plt.xscale("log")
         if "logy" in args:
             plt.yscale("log")
+        if "star" in args:
+            plt.plot(0, 0, "*")
 
         # Show the plot
         plt.show()
