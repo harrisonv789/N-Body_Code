@@ -3,6 +3,7 @@ import os, sys
 from . import mathematics as math
 from .time import Time
 from .state import State
+from .body import Body
 
 # Runs the integration
 class Integrator:
@@ -13,25 +14,25 @@ class Integrator:
 
 
     # Takes in an Input position, Velocity, Accleration and Delta Time
-    def step_leapfrog(self, state: State, dt: float):
+    def step_leapfrog(self, body: Body, dt: float):
 
         # Set up the initial velocity
-        state.v += 0.5 * dt * state.a
+        body.state.v += 0.5 * dt * body.state.a
 
         # Calculate the new parameters
-        state.x += dt * state.v
-        state.a = math.calculate_acceleration(state.x)
-        state.v += 0.5 * dt * state.a
+        body.state.x += dt * body.state.v
+        body.state.a = math.calculate_acceleration(body.state.x)
+        body.state.v += 0.5 * dt * body.state.a
 
         # Return the values
-        return state
+        return body
 
 
     # Call the integrator with a starting position, velocity and acceleration
-    def execute (self, time: Time, state: State):
+    def execute (self, time: Time, body: Body):
 
         # Call check to see if needing to update
-        if not self.needs_update(time, state):
+        if not self.needs_update(time, body):
             print("Initial conditions unchanged.")
             return
 
@@ -48,10 +49,10 @@ class Integrator:
             while time.running:
 
                 # Run the integrator
-                state = self.step_leapfrog(state, time.delta)
+                body = self.step_leapfrog(body, time.delta)
 
                 # Write the data to the output
-                file.write("%8.4f\t%s\n" % (time(), state.output()))
+                file.write("%8.4f\t%s\n" % (time(), body.output()))
 
                 # Increment the time
                 time.increment()
@@ -63,15 +64,15 @@ class Integrator:
 
 
     # Determines if the data needs to be run again
-    def needs_update (self, time, state):
+    def needs_update (self, time, body):
         if os.path.isfile("initial.dat"):
             with open("initial.dat", "r") as file:
-                if file.read() == "%s\n%s" % (str(time), str(state)):
+                if file.read() == "%s\n%s" % (str(time), str(body)):
                     return False
 
         # Update the file
         with open("initial.dat", "w") as file:
-            file.write("%s\n%s" % (str(time), str(state)))
+            file.write("%s\n%s" % (str(time), str(body)))
 
         # Returns a requirement to restart
         return True

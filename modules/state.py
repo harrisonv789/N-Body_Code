@@ -14,18 +14,18 @@ class State:
     a: Vector = Vector()
 
     # Default constructor
-    def __init__ (self, x: Vector, v: Vector, a: Vector):
+    def __init__ (self, x: Vector = Vector(), v: Vector = Vector(), a: Vector = Vector()):
         self.x = x
         self.v = v
         self.a = a
 
-    # Overrides the string function
-    def __str__ (self):
-        return "Position:     %s\nVelocity:     %s\nAcceleration: %s" % (self.x, self.v, self.a)
-
     # Checks if the state is valid
     def valid (self) -> bool:
         return self.x != None and self.v != None and self.a != None
+
+    # Overrides the string function
+    def __str__ (self):
+        return "Position:     %s\nVelocity:     %s\nAcceleration: %s" % (self.x, self.v, self.a)
 
     # Get's the output
     def output (self) -> str:

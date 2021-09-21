@@ -8,6 +8,7 @@ from modules.time import Time
 from modules.vector import Vector
 from modules.state import State
 from modules.plot import Plotter
+from modules.body import Body
 
 
 
@@ -17,7 +18,7 @@ from modules.plot import Plotter
 
 # Simulation parameters
 dt = 0.001             # The step size
-tmax = 10 * 3.141596   # The max timestep
+tmax = 2 * 3.141596   # The max timestep
 output = "output.dat"   # The output filename
 plot_data = True        # Whether or not to plot data
 
@@ -39,6 +40,7 @@ a = math.calculate_acceleration(x)
 
 # Create the initial state and time
 state = State(x, v, a)
+body = Body(state)
 time = Time(0, tmax, dt)
 
 
@@ -48,7 +50,7 @@ time = Time(0, tmax, dt)
 ##########################################################################
 
 inter = Integrator(output)
-inter.execute(time, state)
+inter.execute(time, body)
 
 
 
