@@ -179,3 +179,13 @@ class Vector:
         j = self.z * other.x - self.x * other.z
         k = self.x * other.y - self.y * other.x
         return Vector(i, j, k)
+
+    # Magnitude of the vector
+    @property
+    def magnitude (self):
+        return np.sqrt(self.x ** 2 + self.y ** 2 + self.z ** 2)
+
+    # Directional (hat) normalized vector
+    @property
+    def normalized (self):
+        return self / self.magnitude

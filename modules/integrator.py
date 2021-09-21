@@ -35,7 +35,7 @@ class Integrator:
     def execute (self, time: Time, body: Body):
 
         # Call check to see if needing to update
-        if not self.needs_update(time, body):
+        if not self.needs_update(time, body) and False:
             print("Initial conditions unchanged.")
             return
 

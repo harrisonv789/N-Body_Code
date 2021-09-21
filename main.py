@@ -18,7 +18,7 @@ from modules.model import *
 ##########################################################################
 
 # Simulation parameters
-dt = 0.01             # The step size
+dt = 0.001             # The step size
 tmax = 6 * PI   # The max timestep
 output = "output.dat"   # The output filename
 plot_data = True        # Whether or not to plot data
@@ -35,11 +35,11 @@ theta = 0.0     # Ellipse angle
 ##########################################################################
 
 # Store the current model
-model = KeplerModel()
+model = IsochroneModel()
 
 # Store the initial position, velocity and acceleration
 x = model.initial_position(a, e, theta)
-v = model.initial_velocity(a, e, theta)
+v = model.initial_velocity(x, a, e, theta)
 a = model.calc_acceleration(x)
 
 # Create the initial state and time
