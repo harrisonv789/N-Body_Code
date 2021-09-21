@@ -188,4 +188,4 @@ class Vector:
     # Directional (hat) normalized vector
     @property
     def normalized (self):
-        return self / self.magnitude
+        return self * (1.0 / self.magnitude)

@@ -8,20 +8,31 @@ from .constants import *
 # Base mathematical model
 class Model:
 
+    # Stores the initial state
+    init_state = State()
+
     # Initialise the model
-    def __init__ (self):
-        pass
+    def __init__ (self, **kwargs):
+        self.__dict__.update(kwargs)
+
+        # Get the initial vectors
+        x = self.initial_position ()
+        v = self.initial_velocity (x)
+        a = self.calc_acceleration (x)
+
+        # Create the initial state
+        self.init_state = State(x, v, a)
     
     # Calculates the acceleration from some position
     def calc_acceleration (self, position: Vector) -> Vector:
         return Vector()
 
     # Calculates the starting position
-    def initial_position (self, a: np.float32, e: np.float32, theta: np.float32) -> Vector:
+    def initial_position (self) -> Vector:
         return Vector()
 
     # Calculates the starting velocity
-    def initial_velocity (self, x: Vector, a: np.float32, e: np.float32, theta: np.float32) -> Vector:
+    def initial_velocity (self, x: Vector) -> Vector:
         return Vector()
 
 
@@ -31,11 +42,11 @@ class Model:
 class KeplerModel (Model):
 
     # Initialise the model
-    def __init__(self):
-        super().__init__()
+    def __init__ (self, **kwargs):
+        super().__init__(**kwargs)
 
     # Calculates the acceleration from some position
-    def calc_acceleration(self, position: Vector) -> Vector:
+    def calc_acceleration (self, position: Vector) -> Vector:
 
         # Compute the position value
         r3 = position.magnitude ** 3
@@ -49,13 +60,13 @@ class KeplerModel (Model):
         return a
 
     # Calculates the starting position
-    def initial_position(self, a: np.float32, e: np.float32, theta: np.float32) -> Vector:
-        x = (a * (1 - e ** 2)) / (1 + e * np.cos(theta))
+    def initial_position (self) -> Vector:
+        x = (self.a * (1 - self.e ** 2)) / (1 + self.e * np.cos(self.theta))
         return Vector(x, 0, 0)
 
     # Calculates the starting velocity
-    def initial_velocity(self, x: Vector, a: np.float32, e: np.float32, theta: np.float32) -> Vector:
-        y = np.sqrt(1.0 / a) * np.sqrt((1 + e) / (1 - e))
+    def initial_velocity (self, x: Vector) -> Vector:
+        y = np.sqrt(1.0 / self.a) * np.sqrt((1 + self.e) / (1 - self.e))
         return Vector(0, y, 0)
 
 
@@ -65,12 +76,11 @@ class KeplerModel (Model):
 class IsochroneModel (Model):
 
     # Initialise the model
-    def __init__(self, b = 1.0):
-        self.b = b
-        super().__init__()
+    def __init__ (self, **kwargs):
+        super().__init__(**kwargs)
 
     # Calculates the acceleration from some position
-    def calc_acceleration(self, position: Vector) -> Vector:
+    def calc_acceleration (self, position: Vector) -> Vector:
 
         # Calculate r
         r = position.magnitude
@@ -81,13 +91,19 @@ class IsochroneModel (Model):
         return a
 
     # Calculates the starting position
-    def initial_position(self, a: np.float32, e: np.float32, theta: np.float32) -> Vector:
-        x = a
-        return Vector(x, 0, 0)
+    def initial_position (self) -> Vector:
+        return Vector(self.a, 0, 0)
 
     # Calculates the starting velocity
-    def initial_velocity(self, x: Vector, a: np.float32, e: np.float32, theta: np.float32) -> Vector:
+    def initial_velocity (self, x: Vector) -> Vector:
         r = x.magnitude
         c = np.sqrt(r ** 2 + self.b ** 2)
         v = np.sqrt((G * M * r ** 2) / (c * ((self.b + c) ** 2)))
-        return Vector(0, v, 0)
+        vec = Vector(0, v, 0).normalized
+        return vec * self.escape_velocity(x) * self.v_esc
+
+    # Calculate the escape velocity
+    def escape_velocity (self, x: Vector) -> np.float32:
+        r = x.magnitude
+        phi = (G * M * -1.) / (self.b + np.sqrt(self.b ** 2 + r ** 2))
+        return np.sqrt(2. * abs(phi))

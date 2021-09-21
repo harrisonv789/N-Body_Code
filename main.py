@@ -18,16 +18,11 @@ from modules.model import *
 ##########################################################################
 
 # Simulation parameters
-dt = 0.001             # The step size
-tmax = 6 * PI   # The max timestep
+dt = 0.01             # The step size
+tmax = 200 * PI   # The max timestep
 output = "output.dat"   # The output filename
 plot_data = True        # Whether or not to plot data
-
-# Initial conditions
-a = 1.0         # Ellipse radius
-e = 0.7         # Ellipse eccentricity
-theta = 0.0     # Ellipse angle
-
+model_name = "Isochrone"   # The name of the model
 
 
 ##########################################################################
@@ -35,16 +30,26 @@ theta = 0.0     # Ellipse angle
 ##########################################################################
 
 # Store the current model
-model = IsochroneModel()
+if model_name.lower() == "kepler":
+    model = KeplerModel(
+        a       = 1.0, 
+        e       = 0.7, 
+        theta   = 0.0
+    )
 
-# Store the initial position, velocity and acceleration
-x = model.initial_position(a, e, theta)
-v = model.initial_velocity(x, a, e, theta)
-a = model.calc_acceleration(x)
+elif model_name.lower() == "isochrone":
+    model = IsochroneModel(
+        a       = 1.0,
+        b       = 0.10,
+        v_esc   = 0.95
+    )
+
+else:
+    raise Exception("Invalid model name used.")
+
 
 # Create the initial state and time
-state = State(x, v, a)
-body = Body(state)
+body = Body(model.init_state)
 time = Time(0, tmax, dt)
 
 
