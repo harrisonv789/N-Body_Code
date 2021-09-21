@@ -41,10 +41,23 @@ class Plotter:
             if not (x_axis.isnumeric() and int(x_axis) < len(headers)) and x_axis not in headers: continue
             x_axis = headers[int(x_axis)] if x_axis.isnumeric() else x_axis
 
-            y_axis = input("Plot Selection for (y) Axis: ").lower()
-            if y_axis[0] == "q": break
-            if not (y_axis.isnumeric() and int(y_axis) < len(headers)) and y_axis not in headers: continue
-            y_axis = headers[int(y_axis)] if y_axis.isnumeric() else y_axis
+            # Get multiple Y axis
+            y_axis_in = input("Plot Selection for (y) Axis: ").lower()
+            y_axis_in = [y.strip() for y in y_axis_in.split(",")]
+            if y_axis_in[0] == "q": break
+            y_axis = []
+
+            failed = False
+
+            # Loop through each axis
+            for y in y_axis_in:
+                if not (y.isnumeric() and int(y) < len(headers)) and y not in headers:
+                    failed = True
+                    break
+                y_axis.append(headers[int(y)] if y.isnumeric() else y)
+
+            # Check for failed axis
+            if failed: continue
 
             # Get extra parameters
             params = input("Please enter any parameters (separated) by commas: ").split(",")
@@ -55,12 +68,22 @@ class Plotter:
 
 
     # Makes a simple plot
-    def plot (self, x, y, args):
-        plt.plot(self.data[x], self.data[y], 'o', markersize=1)
-        plt.xlabel(x)
-        plt.ylabel(y)
+    def plot (self, x, y_plots, args):
 
-        # Check arguments for more arguments
+        # Check arguments prior to plotting
+        marker = "" if "lines" in args else "o"
+        linestyle = 'solid' if "lines" in args else "none"
+
+        # Loop through each y plot
+        for y in y_plots:
+            plt.plot(self.data[x], self.data[y], marker=marker, linestyle=linestyle, markersize=2)
+        
+        plt.xlabel("$\mathrm{" + x + "}$")
+        plt.ylabel("$\mathrm{" + "}$, $\mathrm{".join(y_plots) + "}$")
+
+        if len(y_plots) > 1:
+            plt.legend(y_plots)
+
         if "equal" in args:
             plt.axis('equal')
         if "logx" in args:

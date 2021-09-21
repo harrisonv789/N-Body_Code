@@ -23,6 +23,12 @@ class Body:
 
     # Specific energy
     E: np.float64 = 0.0
+
+    # Kinetic energy
+    KE: np.float64 = 0.0
+
+    # Potential energy
+    PE: np.float64 = 0.0
     
 
 
@@ -53,9 +59,9 @@ class Body:
 
     # Updates the Energy based on the calculation
     def update_energy (self):
-        kinetic_energy = 0.5 * self.velocity.dot(self.velocity)
-        potential_energy = -1.0 / self.radius
-        self.E = kinetic_energy + potential_energy
+        self.KE = 0.5 * self.velocity.dot(self.velocity)
+        self.PE = -1.0 / self.radius
+        self.E = self.KE + self.PE
 
 
     ##########################################################################
@@ -87,10 +93,20 @@ class Body:
     def momentum (self) -> Vector:
         return self.L
 
-    # Returns the Energy
+    # Returns the Total Energy
     @property
     def energy (self) -> np.float64:
         return self.E
+
+    # Returns the Kinetic Energy
+    @property
+    def kinetic_energy (self) -> np.float64:
+        return self.KE
+
+    # Returns the Potential Energy
+    @property
+    def potential_energy (self) -> np.float64:
+        return self.PE
 
 
 
@@ -104,11 +120,12 @@ class Body:
 
     # Returns the output for file
     def output (self) -> str:
-        return "%s\t%8.4f\t%s\t%8.4f\t%8.4f" % (self.state.output(), self.r, self.L.output(), self.mass, self.E)
+        return "%s\t%8.4f\t%s\t%8.4f\t%8.4f\t%8.4f\t%8.4f" % \
+        (self.state.output(), self.r, self.L.output(), self.mass, self.E, self.KE, self.PE)
 
     # Defines the list of parameters
     PARAMETERS = ["time", "pos_x", "pos_y", "pos_z", "vel_x", "vel_y", "vel_z", \
-        "acc_x", "acc_y", "acc_z", "radius", "mom_x", "mom_y", "mom_z", "mass", "energy"]
+        "acc_x", "acc_y", "acc_z", "radius", "mom_x", "mom_y", "mom_z", "mass", "tot_E", "kin_E", "pot_E"]
 
     # Returns the headers of the body file
     @staticmethod
