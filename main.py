@@ -17,7 +17,7 @@ from modules.body import Body
 ##########################################################################
 
 # Simulation parameters
-dt = 0.001             # The step size
+dt = 0.1             # The step size
 tmax = 2 * 3.141596   # The max timestep
 output = "output.dat"   # The output filename
 plot_data = True        # Whether or not to plot data

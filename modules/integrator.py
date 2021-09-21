@@ -32,7 +32,7 @@ class Integrator:
     def execute (self, time: Time, body: Body):
 
         # Call check to see if needing to update
-        if not self.needs_update(time, body):
+        if not self.needs_update(time, body) and False:
             print("Initial conditions unchanged.")
             return
 
@@ -43,7 +43,7 @@ class Integrator:
             print("Performing Integration...")
 
             # Add the header row
-            file.write("   time     pos_x     pos_y     pos_z     vel_x     vel_y     vel_z     acc_x     acc_y     acc_z   \n")
+            file.write(body.get_header())
 
             # Loop while the time is less than maximum
             while time.running:
