@@ -15,8 +15,8 @@ from modules.model import *
 ##########################################################################
 
 # Simulation parameters
-dt = 0.001             # The step size
-tmax = 2 * PI   # The max timestep
+dt = 0.01             # The step size
+tmax = 200 * PI   # The max timestep
 output = "output.dat"   # The output filename
 plot_data = True        # Whether or not to plot data
 model_name = "isochrone"   # The name of the model
@@ -38,15 +38,15 @@ if model_name.lower() == "kepler":
 elif model_name.lower() == "isochrone":
     model = IsochroneModel(
         r       = 1.0,
-        b       = 1.0,
-        v_esc   = 0.95,
+        b       = 0.1,
+        v_esc   = 0.5,
         M       = 1.0
     )
 
 elif model_name.lower() == "oscillator":
     model = OscillatorModel(
         r       = 1.0,
-        rho     = 1.0,
+        rho     = 0.5,
         M       = 1.0
     )
 
@@ -55,7 +55,7 @@ else:
 
 
 # Create the initial state and time
-body = Body(model.init_state)
+body = Body(model, model.init_state)
 time = Time(0, tmax, dt)
 
 

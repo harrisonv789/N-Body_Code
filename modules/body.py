@@ -39,7 +39,8 @@ class Body:
     ##########################################################################
 
     # Default Constructor
-    def __init__ (self, state: State = State(), mass: np.float64 = 1.0):
+    def __init__ (self, model: Model, state: State = State(), mass: np.float64 = 1.0):
+        self.model = model
         self.state = state
         self.mass = mass
 
@@ -61,7 +62,7 @@ class Body:
     # Updates the Energy based on the calculation
     def update_energy (self):
         self.KE = 0.5 * self.velocity.dot(self.velocity)
-        self.PE = -1.0 / self.radius
+        self.PE = self.model.calc_potential(self.r)
         self.E = self.KE + self.PE
 
 
