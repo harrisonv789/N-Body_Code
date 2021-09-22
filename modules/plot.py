@@ -124,7 +124,8 @@ class Plotter:
 
         # Check arguments prior to plotting
         marker = "o" if "points" in args else ""
-        linestyle = 'none' if "points" in args else "solid"
+        linestyle = "dashed" if "dashed" in args else "solid"
+        linestyle = 'none' if "points" in args else linestyle
 
         # If analysis
         if analysis:
