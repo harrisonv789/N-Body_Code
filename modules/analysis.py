@@ -36,20 +36,22 @@ class Analysis:
 
     # If saving a file
     def save (self):
-        filename = self.file.split(".")[0]
-        self.savefile = filename + "_analysis.dat"
+        self.savefile = self.file_name(self.file)
 
         # Saves the data to the file
         with open (self.savefile, "w") as file:
-            file.write(" key\t     min\t     max\t     ave\n")
+            keys = list(self.data.keys())
+            keys.insert(0, "key")
+            file.write(" key    \t%s" % "\t     ".join(self.headers()))
 
-            # Loop through each key and output the information
-            for key in self.data.keys():
-                dict_ = self.data[key]
-                file.write("%s\t%8.4f\t%8.4f\t%8.4f\n" % (key, dict_["min"], dict_["max"], dict_["ave"]))
+            # Loop through all the headers and write the data
+            for param in self.data.keys():
+                file.write("\n%s" % param)
+                for key in self.headers():
+                    file.write("\t%8.4f" % self.data[param][key])
 
         # Output success
-        print("Successfully written analysis data to %s" % self.savefile)
+        print("\nSuccessfully written analysis data to %s" % self.savefile)
 
 
     # Outputs all of the analysis
@@ -59,9 +61,20 @@ class Analysis:
         print("\n--------------------------------------------------")
         print(  "ANALYSING DATA %s" % self.file)
         print(  "--------------------------------------------------")
-        print("%s\n\t\t    min\t\t    max\t\t    ave\n%s" % (Color.DEFAULT, Color.END))
+        print("%s\n\t\t    %s\n%s" % (Color.DEFAULT, "\t\t    ".join(self.headers()), Color.END))
         
         # Loop through each key and output the information
         for key in self.data.keys():
             dict_ = self.data[key]
             print("%s    %s%s\t%8.4f\t%8.4f\t%8.4f" % (Color.PARAM, key, Color.END, dict_["min"], dict_["max"], dict_["ave"]))
+
+
+    # Returns the current analytical keys
+    @staticmethod
+    def headers ():
+        return ["min", "max", "ave"]
+
+    # Returns the name of the anlysis file
+    @staticmethod
+    def file_name (file):
+        return file[:-4] + "_analysis.dat"

@@ -81,5 +81,5 @@ analysis.output()
 if plot_data:
 
     # Creates a plotter with the outputs
-    plotter = Plotter(outputs=[output])
+    plotter = Plotter(outputs=["output.dat"])
     plotter.ask_plot()
