@@ -55,3 +55,6 @@ plotter.plot("pos_x", ["pos_y"], ["grid", "star", "equal"], "7)a.")
 
 # Plot for Question b)
 plotter.plot("time", ["tot_E"], ["grid"], "7)b.")
+
+# Plot for Question c)
+plotter.plot("time", ["err_E"], ["grid"], "7)c.")

@@ -21,9 +21,9 @@ class Plotter:
         self.load_data()
 
         # Print the header
-        print("\n----------------------------------------------------")
-        print("PLOTTING DATA FROM %s" % ", ".join(self.outputs))
-        print(  "----------------------------------------------------")
+        print("\n--------------------------------------------------")
+        print(  "PLOTTING DATA FROM %s" % ", ".join(self.outputs))
+        print(  "--------------------------------------------------")
 
 
     # Loads the data from all outputs and stores it in a object
@@ -41,8 +41,8 @@ class Plotter:
         # Print all the options from the headers
         print("\nPlease select from the following options:\n")
         for idx, h in enumerate(headers):
-            print("  %s(%d)\t%s" % (Color.CYAN, idx, h))
-        print("\n  %s(Q)\tQUIT%s\n" % (Color.GREEN, Color.NORMAL))
+            print("  %s(%d)\t%s" % (Color.PARAM, idx, h))
+        print("\n  %s(Q)\tQUIT%s\n" % (Color.WARNING, Color.END))
 
         # Loop while plotting
         while True:

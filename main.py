@@ -4,6 +4,7 @@
 from modules.time import Time
 from modules.body import Body
 from modules.integrator import Integrator
+from modules.analysis import Analysis
 from modules.plot import Plotter
 from modules.constants import *
 from modules.model import *
@@ -15,8 +16,8 @@ from modules.model import *
 ##########################################################################
 
 # Simulation parameters
-dt = 0.08             # The step size
-tmax = 10 * PI   # The max timestep
+dt = 0.08               # The step size
+tmax = 10 * PI          # The max timestep
 output = "output.dat"   # The output filename
 plot_data = True        # Whether or not to plot data
 model_name = "kepler"   # The name of the model
@@ -66,6 +67,9 @@ time = Time(0, tmax, dt)
 
 inter = Integrator(model, output)
 inter.execute(time, body)
+
+analysis = Analysis(output)
+analysis.output()
 
 
 
