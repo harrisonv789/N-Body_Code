@@ -16,8 +16,8 @@ from modules.model import *
 ##########################################################################
 
 # Simulation parameters
-dt = 0.08               # The step size
-tmax = 10 * PI          # The max timestep
+dt = 0.01               # The step size
+tmax = 2 * PI          # The max timestep
 output = "output.dat"   # The output filename
 plot_data = True        # Whether or not to plot data
 model_name = "kepler"   # The name of the model

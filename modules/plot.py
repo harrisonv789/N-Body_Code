@@ -45,11 +45,10 @@ class Plotter:
 
     # Asks the user what to plot from a selection
     def ask_plot (self):
-
         
         # Print all the options from the headers
         print("\nPlease select from the following options:\n")
-        for idx, h in enumerate(headers):
+        for idx, h in enumerate(self.headers):
             print("  %s(%d)\t%s" % (Color.PARAM, idx, h))
 
         # Print analysis options
