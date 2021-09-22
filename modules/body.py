@@ -47,8 +47,13 @@ class Body:
     # Default Constructor
     def __init__ (self, model: Model, mass: np.float64 = 1.0):
         self.model = model
-        self.state = model.init_state
         self.mass = mass
+        self.reset()
+
+    # Resets the data
+    def reset (self):
+        self.init_energy = None
+        self.state = self.model.init_state
         self.update()
         self.init_energy = self.E
 
