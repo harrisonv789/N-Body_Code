@@ -35,6 +35,10 @@ class Plotter:
 
     # Loads the data from all outputs and stores it in a object
     def load_data (self):
+        # Clear the keys
+        self.data = {}
+        self.data_analysis = {}
+
         for output in self.outputs:
             self.data[output] = np.genfromtxt(output, names=True)
 
@@ -55,7 +59,7 @@ class Plotter:
         if self.analysis:
             print()
             for idx, h in enumerate(Analysis.headers()):
-                print("  %s(%d)\t%s" % (Color.PARAM, idx + len(headers), h))
+                print("  %s(%d)\t%s" % (Color.PARAM, idx + len(self.headers), h))
         
         print("\n  %s(Q)\tQUIT%s\n" % (Color.WARNING, Color.END))
 
@@ -112,25 +116,30 @@ class Plotter:
 
 
     # Makes a simple plot
-    def plot (self, x, y_plots, args, title = "", analysis = False):
+    def plot (self, x, y_plots, args, title = "", analysis = False, files = []):
+
+        # If files is empty
+        if files == []:
+            files = self.data.keys()
 
         # Check arguments prior to plotting
         marker = "o" if "points" in args else ""
-        linestyle = 'none' if "points" in args else "solid"
+        linestyle = "dashed" if "dashed" in args else "solid"
+        linestyle = 'none' if "points" in args else linestyle
 
         # If analysis
         if analysis:
             row = self.headers.index(y_plots[0])
 
             # Loop through each data file
-            for idx, key in enumerate(self.data.keys()):
+            for idx, key in enumerate(files):
                 data = self.data_analysis[key]
                 plt.plot(idx, data[x][row], marker="o", linestyle=linestyle, markersize=10, label=key)
                 plt.tick_params(axis='x', which='both', bottom=False, top=False, labelbottom=False)
 
         else:
             # Loop through each y plot
-            for key in self.data.keys():
+            for key in files:
                 
                 data = self.data[key]
 

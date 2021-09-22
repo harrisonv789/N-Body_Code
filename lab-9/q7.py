@@ -48,7 +48,6 @@ for idx in range(len(dts)):
 # CREATES PLOT
 ##########################################################################
 
-# If plotting data
 # Creates a plotter with the outputs
 plotter = Plotter(outputs=files, analysis=True)
 

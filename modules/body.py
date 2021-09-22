@@ -16,6 +16,9 @@ class Body:
     # Radius
     r: np.float64 = 0.0
 
+    # Theta
+    theta: np.float64 = 0.0
+
     # Specific angular momentum
     L: Vector = Vector()
 
@@ -47,8 +50,13 @@ class Body:
     # Default Constructor
     def __init__ (self, model: Model, mass: np.float64 = 1.0):
         self.model = model
-        self.state = model.init_state
         self.mass = mass
+        self.reset()
+
+    # Resets the data
+    def reset (self):
+        self.init_energy = None
+        self.state = self.model.init_state
         self.update()
         self.init_energy = self.E
 
@@ -56,6 +64,7 @@ class Body:
     def update (self):
         self.update_momentum()
         self.update_radius()
+        self.update_theta()
         self.update_energy()
         if self.init_energy != None: self.update_energy_error()
 
@@ -67,6 +76,11 @@ class Body:
     def update_radius (self):
         r2 = self.position.dot(self.position)
         self.r = np.sqrt(r2)
+
+    # Updates the theta
+    def update_theta (self):
+        self.theta = np.arctan2(self.position.y, self.position.x)
+
 
     # Updates the Energy based on the calculation
     def update_energy (self):
@@ -134,12 +148,13 @@ class Body:
 
     # Returns the output for file
     def output (self) -> str:
-        return "%s\t%8.4f\t%s\t%8.4f\t%8.4f\t%8.4f\t%8.4f\t%8.4f" % \
-        (self.state.output(), self.r, self.L.output(), self.mass, self.E, self.KE, self.PE, self.E_error)
+        return "%s\t%8.4f\t%8.4f\t%s\t%8.4f\t%8.4f\t%8.4f\t%8.4f\t%8.4f" % \
+        (self.state.output(), self.r, self.theta, self.L.output(), self.mass, self.E, self.KE, self.PE, self.E_error)
 
     # Defines the list of parameters
     PARAMETERS = ["time", "pos_x", "pos_y", "pos_z", "vel_x", "vel_y", "vel_z", \
-        "acc_x", "acc_y", "acc_z", "radius", "mom_x", "mom_y", "mom_z", "mass", "tot_E", "kin_E", "pot_E", "err_E"]
+        "acc_x", "acc_y", "acc_z", "radius", "theta", "mom_x", "mom_y", "mom_z", "mass", \
+        "tot_E", "kin_E", "pot_E", "err_E"]
 
     # Returns the headers of the body file
     @staticmethod
