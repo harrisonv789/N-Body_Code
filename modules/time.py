@@ -45,7 +45,7 @@ class Time:
     # Function that returns whether or not the time is running
     @property
     def running (self):
-        return self.time < self.end
+        return self.time <= self.end
 
     # Returns the value of the time
     def __call__ (self):

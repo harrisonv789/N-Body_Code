@@ -16,13 +16,16 @@ class Model:
         self.model = model
         self.__dict__.update(kwargs)
 
+    # Get the initial State of the system
+    @property
+    def init_state (self) -> State:
         # Get the initial vectors
         x = self.initial_position ()
         v = self.initial_velocity (x)
         a = self.calc_acceleration (x)
 
         # Create the initial state
-        self.init_state = State(x, v, a)
+        return State(x, v, a)
     
     # Calculates the acceleration from some position
     def calc_acceleration (self, position: Vector) -> Vector:

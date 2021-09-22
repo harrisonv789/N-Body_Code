@@ -12,6 +12,9 @@ class Plotter:
         # Load the data
         self.output = kwargs.get("output", "output.dat")
         self.load_data()
+        print("\n------------------------------")
+        print("PLOTTING DATA FROM %s" % self.output)
+        print(  "------------------------------")
 
     # Loads the data and stores it in a object
     def load_data (self):
@@ -25,10 +28,10 @@ class Plotter:
             headers = [h.strip() for h in file.readline().strip().split(" ") if h != ""]
         
         # Print all the options from the headers
-        print("\n\nPlease select from the following options:\n")
+        print("\nPlease select from the following options:\n")
         for idx, h in enumerate(headers):
-            print("\t%s(%d) %s" % (Color.CYAN, idx, h))
-        print("\n\t%s(Q) QUIT%s\n" % (Color.GREEN, Color.NORMAL))
+            print("  %s(%d)\t%s" % (Color.CYAN, idx, h))
+        print("\n  %s(Q)\tQUIT%s\n" % (Color.GREEN, Color.NORMAL))
 
         # Loop while plotting
         while True:
@@ -41,7 +44,7 @@ class Plotter:
             x_axis = headers[int(x_axis)] if x_axis.isnumeric() else x_axis
 
             # Get multiple Y axis
-            y_axis_in = input("Plot Selection for (y) Axis: ").lower()
+            y_axis_in = input("Plot Selection(s) for (y) Axis: ").lower()
             y_axis_in = [y.strip() for y in y_axis_in.split(",")]
             if y_axis_in[0] == "q": break
             y_axis = []

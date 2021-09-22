@@ -131,7 +131,7 @@ class Body:
     # Returns the headers of the body file
     @staticmethod
     def get_header () -> str:
-        output = "    "
+        output = "   "
         for p in Body.PARAMETERS:
-            output += p + "    "
+            output += p + "     "
         return output[:-4] + "\n"

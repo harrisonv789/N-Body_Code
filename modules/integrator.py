@@ -35,7 +35,7 @@ class Integrator:
     def execute (self, time: Time, body: Body):
 
         # Call check to see if needing to update
-        if not self.needs_update(time, body) and False:
+        if not self.needs_update(time, body):
             print("Initial conditions unchanged.")
             return
 
@@ -61,21 +61,26 @@ class Integrator:
                 time.increment()
 
                 # Output the progress and flush the buffer
-                if time.steps % int(time.steps_max / 50) == 0:
+                if time.steps_max >= 50 and time.steps % int(time.steps_max / 50) == 0:
                     print("=", end="")
                     sys.stdout.flush()
 
 
     # Determines if the data needs to be run again
     def needs_update (self, time, body):
+
+        # Create parameter line
+        save = "%s\n%s\n%s" % (str(time), str(body), str(self.model.__dict__))
+
+        # Check to see if the file is the same
         if os.path.isfile("initial.dat"):
             with open("initial.dat", "r") as file:
-                if file.read() == "%s\n%s" % (str(time), str(body)):
+                if file.read() == save:
                     return False
 
         # Update the file
         with open("initial.dat", "w") as file:
-            file.write("%s\n%s" % (str(time), str(body)))
+            file.write(save)
 
         # Returns a requirement to restart
         return True

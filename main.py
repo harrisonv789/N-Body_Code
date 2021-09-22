@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
 
 # Import all needed packages
-from matplotlib.pyplot import plot
-from modules.integrator import Integrator
 from modules.time import Time
-from modules.vector import Vector
-from modules.state import State
-from modules.plot import Plotter
 from modules.body import Body
+from modules.integrator import Integrator
+from modules.plot import Plotter
 from modules.constants import *
 from modules.model import *
 
@@ -18,11 +15,11 @@ from modules.model import *
 ##########################################################################
 
 # Simulation parameters
-dt = 0.01             # The step size
-tmax = 2 * PI   # The max timestep
+dt = 0.1             # The step size
+tmax = 6 * PI   # The max timestep
 output = "output.dat"   # The output filename
 plot_data = True        # Whether or not to plot data
-model_name = "oscillator"   # The name of the model
+model_name = "kepler"   # The name of the model
 
 
 ##########################################################################
