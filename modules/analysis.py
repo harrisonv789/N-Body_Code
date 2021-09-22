@@ -9,10 +9,11 @@ class Analysis:
     data = {}
 
     # Constructor for initialising the analysis
-    def __init__ (self, file):
+    def __init__ (self, file, save = False):
         self.file = file
         self.raw_data = np.genfromtxt(file, names=True)
         self.analyse_data()
+        if save: self.save()
 
     # Create analysis on each of the data points
     # Min, Max, Average
@@ -31,6 +32,25 @@ class Analysis:
 
             # Add the key to the data
             self.data[key] = {"min": minval, "max": maxval, "ave": aveval}
+
+
+    # If saving a file
+    def save (self):
+        filename = self.file.split(".")[0]
+        self.savefile = filename + "_analysis.dat"
+
+        # Saves the data to the file
+        with open (self.savefile, "w") as file:
+            file.write(" key\t     min\t     max\t     ave\n")
+
+            # Loop through each key and output the information
+            for key in self.data.keys():
+                dict_ = self.data[key]
+                file.write("%s\t%8.4f\t%8.4f\t%8.4f\n" % (key, dict_["min"], dict_["max"], dict_["ave"]))
+
+        # Output success
+        print("Successfully written analysis data to %s" % self.savefile)
+
 
     # Outputs all of the analysis
     def output (self):

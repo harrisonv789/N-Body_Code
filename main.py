@@ -68,7 +68,7 @@ time = Time(0, tmax, dt)
 inter = Integrator(model, output)
 inter.execute(time, body)
 
-analysis = Analysis(output)
+analysis = Analysis(output, True)
 analysis.output()
 
 
