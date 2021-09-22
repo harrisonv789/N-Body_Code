@@ -19,10 +19,10 @@ from modules.model import *
 
 # Simulation parameters
 dt = 0.01             # The step size
-tmax = 200 * PI   # The max timestep
+tmax = 2 * PI   # The max timestep
 output = "output.dat"   # The output filename
 plot_data = True        # Whether or not to plot data
-model_name = "Isochrone"   # The name of the model
+model_name = "oscillator"   # The name of the model
 
 
 ##########################################################################
@@ -34,14 +34,23 @@ if model_name.lower() == "kepler":
     model = KeplerModel(
         a       = 1.0, 
         e       = 0.7, 
-        theta   = 0.0
+        theta   = 0.0,
+        M       = 1.0
     )
 
 elif model_name.lower() == "isochrone":
     model = IsochroneModel(
-        a       = 1.0,
+        r       = 1.0,
         b       = 0.10,
-        v_esc   = 0.95
+        v_esc   = 0.95,
+        M       = 1.0
+    )
+
+elif model_name.lower() == "oscillator":
+    model = OscillatorModel(
+        r       = 1.0,
+        rho     = 1.0,
+        M       = 1.0
     )
 
 else:

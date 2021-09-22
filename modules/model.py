@@ -12,7 +12,8 @@ class Model:
     init_state = State()
 
     # Initialise the model
-    def __init__ (self, **kwargs):
+    def __init__ (self, model, **kwargs):
+        self.model = model
         self.__dict__.update(kwargs)
 
         # Get the initial vectors
@@ -43,7 +44,7 @@ class KeplerModel (Model):
 
     # Initialise the model
     def __init__ (self, **kwargs):
-        super().__init__(**kwargs)
+        super().__init__("kepler", **kwargs)
 
     # Calculates the acceleration from some position
     def calc_acceleration (self, position: Vector) -> Vector:
@@ -72,12 +73,12 @@ class KeplerModel (Model):
 
 
 
-# Kepler mathematical model
+# Isochrone mathematical model
 class IsochroneModel (Model):
 
     # Initialise the model
     def __init__ (self, **kwargs):
-        super().__init__(**kwargs)
+        super().__init__("isochrone", **kwargs)
 
     # Calculates the acceleration from some position
     def calc_acceleration (self, position: Vector) -> Vector:
@@ -85,25 +86,55 @@ class IsochroneModel (Model):
         # Calculate r
         r = position.magnitude
         c = np.sqrt(r ** 2 + self.b ** 2)
-        a = position * ((-1. * G * M) / (c * ((self.b + c) ** 2)))
+        a = position * ((-1. * G * self.M) / (c * ((self.b + c) ** 2)))
 
         # Return the acceleration
         return a
 
     # Calculates the starting position
     def initial_position (self) -> Vector:
-        return Vector(self.a, 0, 0)
+        return Vector(self.r, 0, 0)
 
     # Calculates the starting velocity
     def initial_velocity (self, x: Vector) -> Vector:
         r = x.magnitude
         c = np.sqrt(r ** 2 + self.b ** 2)
-        v = np.sqrt((G * M * r ** 2) / (c * ((self.b + c) ** 2)))
+        v = np.sqrt((G * self.M * r ** 2) / (c * ((self.b + c) ** 2)))
         vec = Vector(0, v, 0).normalized
         return vec * self.escape_velocity(x) * self.v_esc
 
     # Calculate the escape velocity
     def escape_velocity (self, x: Vector) -> np.float32:
         r = x.magnitude
-        phi = (G * M * -1.) / (self.b + np.sqrt(self.b ** 2 + r ** 2))
+        phi = (G * self.M * -1.) / (self.b + np.sqrt(self.b ** 2 + r ** 2))
         return np.sqrt(2. * abs(phi))
+
+
+
+
+# Oscillator mathematical model
+class OscillatorModel (Model):
+
+    # Initialise the model
+    def __init__ (self, **kwargs):
+        super().__init__("oscillator", **kwargs)
+
+    # Calculates omega
+    @property
+    def omega (self) -> np.float64:
+        return np.sqrt(4.0 * PI * G * self.rho / 3.0)
+
+    # Calculates the acceleration from some position
+    def calc_acceleration (self, position: Vector) -> Vector:
+
+        # Return the acceleration
+        return position * -1. * (self.omega ** 2)
+
+    # Calculates the starting position
+    def initial_position (self) -> Vector:
+        return Vector(self.r, 0, 0)
+
+    # Calculates the starting velocity
+    def initial_velocity (self, x: Vector) -> Vector:
+        v = self.r * self.omega
+        return Vector(0, v, 0)
