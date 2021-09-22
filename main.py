@@ -15,11 +15,11 @@ from modules.model import *
 ##########################################################################
 
 # Simulation parameters
-dt = 0.1             # The step size
-tmax = 6 * PI   # The max timestep
+dt = 0.001             # The step size
+tmax = 2 * PI   # The max timestep
 output = "output.dat"   # The output filename
 plot_data = True        # Whether or not to plot data
-model_name = "kepler"   # The name of the model
+model_name = "isochrone"   # The name of the model
 
 
 ##########################################################################
@@ -38,7 +38,7 @@ if model_name.lower() == "kepler":
 elif model_name.lower() == "isochrone":
     model = IsochroneModel(
         r       = 1.0,
-        b       = 0.10,
+        b       = 1.0,
         v_esc   = 0.95,
         M       = 1.0
     )
@@ -77,5 +77,5 @@ inter.execute(time, body)
 if plot_data:
 
     # Creates a plotter with the outputs
-    plotter = Plotter(output=output)
+    plotter = Plotter(outputs=[output])
     plotter.ask_plot()

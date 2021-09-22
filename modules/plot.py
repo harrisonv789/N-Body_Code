@@ -6,19 +6,30 @@ from .color import Color
 # Create a class for a plotter
 class Plotter:
 
+    # Store the data as a dictionary
+    data = {}
+
     # Init constructor takes in some output data file and some arguments
     def __init__ (self, **kwargs):
 
-        # Load the data
-        self.output = kwargs.get("output", "output.dat")
-        self.load_data()
-        print("\n------------------------------")
-        print("PLOTTING DATA FROM %s" % self.output)
-        print(  "------------------------------")
+        # Store references to the outputs
+        self.outputs = kwargs.get("outputs", ["output.dat"])
+        self.output = self.outputs[0]
+        self.multiple = len(self.outputs) > 1
 
-    # Loads the data and stores it in a object
+        # Load the data
+        self.load_data()
+
+        # Print the header
+        print("\n----------------------------------------------------")
+        print("PLOTTING DATA FROM %s" % ", ".join(self.outputs))
+        print(  "----------------------------------------------------")
+
+
+    # Loads the data from all outputs and stores it in a object
     def load_data (self):
-        self.data = np.genfromtxt(self.output, names=True)
+        for output in self.outputs:
+            self.data[output] = np.genfromtxt(output, names=True)
 
 
     # Asks the user what to plot from a selection
@@ -77,14 +88,18 @@ class Plotter:
         linestyle = 'none' if "points" in args else "solid"
 
         # Loop through each y plot
-        for y in y_plots:
-            plt.plot(self.data[x], self.data[y], marker=marker, linestyle=linestyle, markersize=2)
-        
+        for key in self.data.keys():
+            data = self.data[key]
+            for y in y_plots:
+                # Determine label
+                label = "%s - %s" % (y, key) if self.multiple else y
+                plt.plot(data[x], data[y], marker=marker, linestyle=linestyle, markersize=2, label=label)
+            
         plt.xlabel("$\mathrm{" + x + "}$")
         plt.ylabel("$\mathrm{" + "}$, $\mathrm{".join(y_plots) + "}$")
 
-        if len(y_plots) > 1:
-            plt.legend(y_plots)
+        if len(y_plots) > 1 or self.multiple:
+            plt.legend()
 
         if "equal" in args:
             plt.axis('equal')
