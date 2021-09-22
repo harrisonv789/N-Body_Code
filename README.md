@@ -11,7 +11,7 @@ To install the repository, use the *git* command line:
 ```
 git clone https://github.com/harrisonv789/N-body_code.git
 cd N-body_code
-git checkout lab-9
+git checkout lab-9 --
 git pull
 ```
 
