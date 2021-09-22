@@ -81,7 +81,7 @@ class Plotter:
 
 
     # Makes a simple plot
-    def plot (self, x, y_plots, args):
+    def plot (self, x, y_plots, args, title = ""):
 
         # Check arguments prior to plotting
         marker = "o" if "points" in args else ""
@@ -111,6 +111,8 @@ class Plotter:
             plt.plot(0, 0, "*", markersize=10)
         if "grid" in args:
             plt.grid()
+
+        plt.title(title)
 
         # Show the plot
         plt.show()

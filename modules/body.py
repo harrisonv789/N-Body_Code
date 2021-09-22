@@ -39,9 +39,9 @@ class Body:
     ##########################################################################
 
     # Default Constructor
-    def __init__ (self, model: Model, state: State = State(), mass: np.float64 = 1.0):
+    def __init__ (self, model: Model, mass: np.float64 = 1.0):
         self.model = model
-        self.state = state
+        self.state = model.init_state
         self.mass = mass
 
     # Updates properties

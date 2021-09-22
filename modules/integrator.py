@@ -36,14 +36,14 @@ class Integrator:
 
         # Call check to see if needing to update
         if not self.needs_update(time, body):
-            print("Initial conditions unchanged.")
+            print("\nInitial conditions unchanged.")
             return
 
         # Clear the output and open the file
         with open(self.output, "w") as file:
 
             # Print status
-            print("Performing Integration...")
+            print("\nPerforming Integration...")
 
             # Add the header row
             file.write(body.get_header())

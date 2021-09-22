@@ -16,10 +16,10 @@ from modules.model import *
 
 # Simulation parameters
 dt = 0.01             # The step size
-tmax = 200 * PI   # The max timestep
+tmax = 10 * PI   # The max timestep
 output = "output.dat"   # The output filename
 plot_data = True        # Whether or not to plot data
-model_name = "isochrone"   # The name of the model
+model_name = "kepler"   # The name of the model
 
 
 ##########################################################################
@@ -55,7 +55,7 @@ else:
 
 
 # Create the initial state and time
-body = Body(model, model.init_state)
+body = Body(model)
 time = Time(0, tmax, dt)
 
 
