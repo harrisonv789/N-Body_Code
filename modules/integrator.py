@@ -36,14 +36,14 @@ class Integrator:
 
         # Call check to see if needing to update
         if not self.needs_update(time, body):
-            print("Initial conditions unchanged.")
+            print("\nInitial conditions unchanged.")
             return
 
         # Clear the output and open the file
         with open(self.output, "w") as file:
 
             # Print status
-            print("Performing Integration...")
+            print("\nPerforming Integration...")
 
             # Add the header row
             file.write(body.get_header())
@@ -51,14 +51,14 @@ class Integrator:
             # Loop while the time is less than maximum
             while time.running:
 
-                # Run the integrator
-                body = self.step_leapfrog(body, time.delta)
-
                 # Write the data to the output
                 file.write("%8.4f\t%s\n" % (time(), body.output()))
 
                 # Increment the time
                 time.increment()
+
+                # Run the integrator
+                body = self.step_leapfrog(body, time.delta)
 
                 # Output the progress and flush the buffer
                 if time.steps_max >= 50 and time.steps % int(time.steps_max / 50) == 0:

@@ -31,6 +31,10 @@ class Model:
     def calc_acceleration (self, position: Vector) -> Vector:
         return Vector()
 
+    # Calculates the potential from the radius
+    def calc_potential (self, radius: np.float64) -> np.float64:
+        return 0.0
+
     # Calculates the starting position
     def initial_position (self) -> Vector:
         return Vector()
@@ -38,6 +42,9 @@ class Model:
     # Calculates the starting velocity
     def initial_velocity (self, x: Vector) -> Vector:
         return Vector()
+
+
+
 
 
 
@@ -63,6 +70,10 @@ class KeplerModel (Model):
         # Return the acceleration
         return a
 
+    # Calculates the potential from the radius
+    def calc_potential (self, radius: np.float64) -> np.float64:
+        return -1.0 / radius
+
     # Calculates the starting position
     def initial_position (self) -> Vector:
         x = (self.a * (1 - self.e ** 2)) / (1 + self.e * np.cos(self.theta))
@@ -79,6 +90,10 @@ class KeplerModel (Model):
 # Isochrone mathematical model
 class IsochroneModel (Model):
 
+    # Default parameters
+    v_mul = None    # The circular velocity multiplier
+    v_esc = None    # Using an escape velocity multipler
+
     # Initialise the model
     def __init__ (self, **kwargs):
         super().__init__("isochrone", **kwargs)
@@ -94,6 +109,10 @@ class IsochroneModel (Model):
         # Return the acceleration
         return a
 
+    # Calculates the potential from the radius
+    def calc_potential (self, radius: np.float64) -> np.float64:
+        return (-1. * G * self.M) / (self.b + np.sqrt(self.b ** 2 + radius ** 2))
+
     # Calculates the starting position
     def initial_position (self) -> Vector:
         return Vector(self.r, 0, 0)
@@ -103,8 +122,15 @@ class IsochroneModel (Model):
         r = x.magnitude
         c = np.sqrt(r ** 2 + self.b ** 2)
         v = np.sqrt((G * self.M * r ** 2) / (c * ((self.b + c) ** 2)))
-        vec = Vector(0, v, 0).normalized
-        return vec * self.escape_velocity(x) * self.v_esc
+        vec = Vector(0, v, 0)
+
+        # Return velocity based on input
+        if self.v_esc != None:
+            return vec.normalized * self.escape_velocity(x) * self.v_esc
+        elif self.v_mul != None:
+            return vec * self.v_mul
+        else:
+            return vec
 
     # Calculate the escape velocity
     def escape_velocity (self, x: Vector) -> np.float32:
@@ -118,6 +144,9 @@ class IsochroneModel (Model):
 # Oscillator mathematical model
 class OscillatorModel (Model):
 
+    # Default parameters
+    Omega = None
+
     # Initialise the model
     def __init__ (self, **kwargs):
         super().__init__("oscillator", **kwargs)
@@ -125,13 +154,20 @@ class OscillatorModel (Model):
     # Calculates omega
     @property
     def omega (self) -> np.float64:
-        return np.sqrt(4.0 * PI * G * self.rho / 3.0)
+        if self.Omega == None:
+            return np.sqrt(4.0 * PI * G * self.rho / 3.0)
+        return self.Omega
+        
 
     # Calculates the acceleration from some position
     def calc_acceleration (self, position: Vector) -> Vector:
 
         # Return the acceleration
         return position * -1. * (self.omega ** 2)
+
+    # Calculates the potential from the radius
+    def calc_potential (self, radius: np.float64) -> np.float64:
+        return -0.5 * (radius ** 2) + (self.omega ** 2)
 
     # Calculates the starting position
     def initial_position (self) -> Vector:
