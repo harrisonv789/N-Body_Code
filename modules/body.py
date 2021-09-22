@@ -30,6 +30,12 @@ class Body:
 
     # Potential energy
     PE: np.float64 = 0.0
+
+    # Error energy
+    E_error: np.float64 = 0.0
+
+    # Initial energy
+    init_energy = None
     
 
 
@@ -43,12 +49,15 @@ class Body:
         self.model = model
         self.state = model.init_state
         self.mass = mass
+        self.update()
+        self.init_energy = self.E
 
     # Updates properties
     def update (self):
         self.update_momentum()
         self.update_radius()
         self.update_energy()
+        if self.init_energy != None: self.update_energy_error()
 
     # Updates the momentum based on the calculation
     def update_momentum (self):
@@ -65,6 +74,9 @@ class Body:
         self.PE = self.model.calc_potential(self.r)
         self.E = self.KE + self.PE
 
+    # Updaes the Energy error based on the energy
+    def update_energy_error (self):
+        self.E_error = abs((self.init_energy - self.E) / self.init_energy)
 
     ##########################################################################
     # PROPERTY FUNCTIONS
@@ -122,12 +134,12 @@ class Body:
 
     # Returns the output for file
     def output (self) -> str:
-        return "%s\t%8.4f\t%s\t%8.4f\t%8.4f\t%8.4f\t%8.4f" % \
-        (self.state.output(), self.r, self.L.output(), self.mass, self.E, self.KE, self.PE)
+        return "%s\t%8.4f\t%s\t%8.4f\t%8.4f\t%8.4f\t%8.4f\t%8.4f" % \
+        (self.state.output(), self.r, self.L.output(), self.mass, self.E, self.KE, self.PE, self.E_error)
 
     # Defines the list of parameters
     PARAMETERS = ["time", "pos_x", "pos_y", "pos_z", "vel_x", "vel_y", "vel_z", \
-        "acc_x", "acc_y", "acc_z", "radius", "mom_x", "mom_y", "mom_z", "mass", "tot_E", "kin_E", "pot_E"]
+        "acc_x", "acc_y", "acc_z", "radius", "mom_x", "mom_y", "mom_z", "mass", "tot_E", "kin_E", "pot_E", "err_E"]
 
     # Returns the headers of the body file
     @staticmethod

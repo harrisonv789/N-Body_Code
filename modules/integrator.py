@@ -51,14 +51,14 @@ class Integrator:
             # Loop while the time is less than maximum
             while time.running:
 
-                # Run the integrator
-                body = self.step_leapfrog(body, time.delta)
-
                 # Write the data to the output
                 file.write("%8.4f\t%s\n" % (time(), body.output()))
 
                 # Increment the time
                 time.increment()
+
+                # Run the integrator
+                body = self.step_leapfrog(body, time.delta)
 
                 # Output the progress and flush the buffer
                 if time.steps_max >= 50 and time.steps % int(time.steps_max / 50) == 0:
