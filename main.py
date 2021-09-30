@@ -2,7 +2,7 @@
 
 # Import all needed packages
 from modules.time import Time
-from modules.body import Body
+from modules.system import System
 from modules.integrator import *
 from modules.analysis import Analysis
 from modules.plot import Plotter
@@ -56,7 +56,7 @@ else:
 
 
 # Create the initial state and time
-body = Body(model)
+system = System(model, 1)
 time = Time(0, tmax, dt)
 
 
@@ -66,7 +66,7 @@ time = Time(0, tmax, dt)
 ##########################################################################
 
 integrator = LeapFrogIntegrator()
-integrator.execute(model, time, body, output)
+integrator.execute(time, system, output)
 
 analysis = Analysis(output, True)
 #analysis.output()
