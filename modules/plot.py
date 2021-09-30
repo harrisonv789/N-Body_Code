@@ -29,7 +29,7 @@ class Plotter:
 
         # Print the header
         print("\n--------------------------------------------------")
-        print(  "PLOTTING DATA FROM %s" % ", ".join(self.outputs))
+        print("%sPLOTTING DATA FROM %s%s" % (Color.HEADER, ", ".join(self.outputs), Color.RESET))
         print(  "--------------------------------------------------")
 
 
@@ -68,7 +68,7 @@ class Plotter:
             print("---")
 
             # Get the X and Y axis and check for valid
-            x_axis = input("Plot Selection for (x) Axis: ").lower()
+            x_axis = input("Plot Selection for (%sx%s) Axis: " % (Color.INPUT, Color.RESET)).lower()
 
             # Check to see if it an analysis value
             if self.analysis and (x_axis.isnumeric() and int(x_axis) >= len(self.headers) and int(x_axis) < len(self.headers) + len(Analysis.headers())) or x_axis in Analysis.headers():
@@ -90,7 +90,7 @@ class Plotter:
             x_axis = self.headers[int(x_axis)] if x_axis.isnumeric() else x_axis
 
             # Get multiple Y axis
-            y_axis_in = input("Plot Selection(s) for (y) Axis: ").lower()
+            y_axis_in = input("Plot Selection(s) for (%sy%s) Axis: " % (Color.INPUT, Color.RESET)).lower()
             y_axis_in = [y.strip() for y in y_axis_in.split(",")]
             if y_axis_in[0] == "q": break
             y_axis = []

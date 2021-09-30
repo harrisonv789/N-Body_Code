@@ -3,9 +3,13 @@ from numpy import float64
 from .time import Time
 from .body import Body
 from .system import System
-from .model import Model
+from .color import Color
 from .file import *
 
+
+##########################################################################
+# BASE INTEGRATOR CLASS
+##########################################################################
 
 # Base Integrator class
 class Integrator:
@@ -14,6 +18,9 @@ class Integrator:
 
     # A flag for showing progress to the screen
     verbose = True
+
+    # The number of progress ticks
+    ticks = 67
 
     # Initialises the integrator with some output
     def __init__ (self, name: str, **kwargs):
@@ -46,11 +53,11 @@ class Integrator:
 
         # Call check to see if needing to update
         if not InitialFile.write(time, system.model):
-            print("\nInitial conditions unchanged.")
+            Color.print("\nInitial conditions unchanged.", Color.WARNING)
             return
 
         # Print status
-        print("\nPerforming Integration...")
+        Color.print("\nPerforming Integration...", Color.WARNING)
 
         # Create the output file and add a header
         file = OutputFile(output)
@@ -75,17 +82,25 @@ class Integrator:
             file.write(time, system.body)
 
             # Output the progress and flush the buffer
-            if self.verbose and time.steps_max >= 50 and time.steps % int(time.steps_max / 50) == 0:
-                print("=", end="")
+            if self.verbose and time.steps_max >= self.ticks and time.steps % int(time.steps_max / self.ticks) == 0:
+                print("\t%2.1f%%  |  %s%s%s" % ((time.progress * 100.0), Color.YELLOW_B, \
+                    ("=" * int(time.progress * self.ticks)), Color.END), end="\r")
                 sys.stdout.flush()
+
+        # Print status
+        Color.print("\nIntegration Complete!", Color.SUCCESS)
+        print("\tDuration: %8.4f s" % time.duration)
                 
         # Safely close the file
         file.close()
 
 
 
+##########################################################################
+# LEAPFROG INTEGRATOR
+##########################################################################
 
-# Runs the integration
+# Leap Frog integration class
 class LeapFrogIntegrator (Integrator):
 
     # Initialise the integrator with some timestep
@@ -106,3 +121,5 @@ class LeapFrogIntegrator (Integrator):
 
         # Update the body
         body.update()
+
+

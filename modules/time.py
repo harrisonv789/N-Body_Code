@@ -1,5 +1,6 @@
 # Use numpy for storing the floats as doubles
 from numpy import float64
+from datetime import datetime
 
 # Class with some time properties
 class Time:
@@ -22,6 +23,9 @@ class Time:
     # The number of current steps
     steps: int = 0
 
+    # Realtime duration when the time was reset
+    timestamp: datetime
+
     # Initialiser constructor
     def __init__ (self, start_time: float64 = 0.0, end_time: float64 = 1.0, delta_time: float64 = 0.01):
         self.start = start_time
@@ -42,6 +46,7 @@ class Time:
         self.time = self.start
         self.steps = 0
         self.steps_max = int((self.end - self.start) / self.delta)
+        self.timestamp = datetime.now()
 
     # Increments the time by the delta time
     def increment (self):
@@ -63,6 +68,11 @@ class Time:
     @property
     def running (self) -> bool:
         return self.time <= self.end
+
+    # Duration in seconds
+    @property
+    def duration (self) -> float:
+        return (datetime.now() - self.timestamp).total_seconds()
 
     ##########################################################################
 
