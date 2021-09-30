@@ -1,5 +1,7 @@
+import os
 from .body import Body
 from .time import Time
+from .model import Model
 
 
 # Class for writing to an output file
@@ -30,3 +32,27 @@ class OutputFile:
     # Closes a file
     def close (self):
         self.file.close()
+
+
+# Class for writing to the initial data file
+class InitialFile:
+
+    # Static function to write to a file
+    @staticmethod
+    def write (time: Time, model: Model):
+
+        # Create save lin line
+        save = "%s\n%s\n%s" % (str(time), str(model.init_state), str(model.__dict__))
+
+        # Check to see if the file is the same
+        if os.path.isfile("initial.dat"):
+            with open("initial.dat", "r") as file:
+                if file.read() == save:
+                    return False
+
+        # Update the file
+        with open("initial.dat", "w") as file:
+            file.write(save)
+
+        # Returns a requirement to restart
+        return True

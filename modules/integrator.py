@@ -1,10 +1,10 @@
-import os, sys
+import sys
 from numpy import float64
 from .time import Time
 from .body import Body
 from .system import System
 from .model import Model
-from .file import OutputFile
+from .file import *
 
 
 # Base Integrator class
@@ -45,7 +45,7 @@ class Integrator:
         self.output = output
 
         # Call check to see if needing to update
-        if not self.needs_update(time, system.body):
+        if not InitialFile.write(time, system.model):
             print("\nInitial conditions unchanged.")
             return
 
@@ -81,27 +81,6 @@ class Integrator:
                 
         # Safely close the file
         file.close()
-
-
-    # Determines if the data needs to be run again
-    def needs_update (self, time: Time, body: Body):
-
-        # Create parameter line
-        save = "%s\n%s\n%s" % (str(time), str(body), str(self.system.model.__dict__))
-
-        # Check to see if the file is the same
-        if os.path.isfile("initial.dat"):
-            with open("initial.dat", "r") as file:
-                if file.read() == save:
-                    return False
-
-        # Update the file
-        with open("initial.dat", "w") as file:
-            file.write(save)
-
-        # Returns a requirement to restart
-        return True
-
 
 
 
