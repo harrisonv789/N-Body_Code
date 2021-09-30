@@ -65,7 +65,7 @@ time = Time(0, tmax, dt)
 # INTEGRATOR
 ##########################################################################
 
-integrator = TestIntegrator()
+integrator = LeapFrogIntegrator()
 integrator.execute(system, time, output)
 
 analysis = Analysis(output, True)
