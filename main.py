@@ -16,8 +16,8 @@ from modules.model import *
 ##########################################################################
 
 # Simulation parameters
-dt = 0.0003               # The step size
-tmax = 2 * PI          # The max timestep
+dt = 0.0003             # The step size
+tmax = 2 * PI           # The max timestep
 output = "output.dat"   # The output filename
 plot_data = True        # Whether or not to plot data
 model_name = "kepler"   # The name of the model
@@ -66,10 +66,11 @@ time = Time(0, tmax, dt)
 ##########################################################################
 
 integrator = LeapFrogIntegrator()
-integrator.execute(time, system, output)
+integrator.execute(system, time, output)
+integrator.execute(system, time, output)
 
 analysis = Analysis(output, True)
-#analysis.output()
+analysis.output()
 
 
 

@@ -24,12 +24,15 @@ class System:
         # Resets the list
         self.bodies = []
 
-        # Create the bodies
+        # Create the bodies with the initial state
         for idx in range(self.n_bodies):
-            self.bodies.append(Body(self.model))
+            state = self.model.init_state
+            b = Body(self.model, state)
+            self.bodies.append(b)
 
 
     # TODO REMOVE
+    # Rerturns the first body of the system
     @property
     def body (self):
         return self.bodies[0]

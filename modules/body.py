@@ -48,15 +48,15 @@ class Body:
     ##########################################################################
 
     # Default Constructor
-    def __init__ (self, model: Model, mass: float64 = 1.0):
+    def __init__ (self, model: Model, state: State, mass: float64 = 1.0):
         self.model = model
+        self.state = state
         self.mass = mass
         self.reset()
 
     # Resets the data
     def reset (self):
         self.init_energy = None
-        self.state = self.model.init_state
         self.update()
         self.init_energy = self.E
 
@@ -80,7 +80,6 @@ class Body:
     # Updates the theta
     def update_theta (self):
         self.theta = arctan2(self.position.y, self.position.x)
-
 
     # Updates the Energy based on the calculation
     def update_energy (self):

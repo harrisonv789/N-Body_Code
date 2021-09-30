@@ -4,6 +4,7 @@ from .time import Time
 from .body import Body
 from .system import System
 from .model import Model
+from .file import OutputFile
 
 
 # Base Integrator class
@@ -26,7 +27,7 @@ class Integrator:
     # INTEGRATION FUNCTIONS
     ##########################################################################
 
-    # Updates a particle with new properties
+    # Updates a body with new properties
     # This function must be overriden by the integrator class
     def update (self, body: Body, dt: float64):
         pass
@@ -34,42 +35,52 @@ class Integrator:
 
     # Executes the integration with a system
     # Takes in the model, time, list of bodies and the output file
-    def execute (self, time: Time, system: System, output: str = "output.dat"):
+    def execute (self, system: System, time: Time, output: str = "output.dat"):
+
+        # Reset the time
+        time.reset()
 
         # Set the global variables
         self.system = system
         self.output = output
 
         # Call check to see if needing to update
-        if not self.needs_update(time, system.body) and False:
+        if not self.needs_update(time, system.body):
             print("\nInitial conditions unchanged.")
             return
 
-        # Clear the output and open the file
-        with open(output, "w") as file:
+        # Print status
+        print("\nPerforming Integration...")
 
-            # Print status
-            print("\nPerforming Integration...")
+        # Create the output file and add a header
+        file = OutputFile(output)
+        file.header()
 
-            # Add the header row
-            file.write(system.body.get_header())
+        # Write the initial data to the file
+        file.write(time, system.body)
 
-            # Loop while the time is less than maximum
-            while time.running:
+        # Loop while the time is less than maximum
+        while time.running:
 
-                # Write the data to the output
-                file.write("%8.4f\t%s\n" % (time(), system.body.output()))
+            # Increment the time
+            time.increment()
 
-                # Increment the time
-                time.increment()
+            # Loop through all the bodies
+            for body in system.bodies:
 
-                # Run the integrator
-                self.update(system.body, time.delta)
+                # Run the integrator on the bodies
+                self.update(body, time.delta)
 
-                # Output the progress and flush the buffer
-                if time.steps_max >= 50 and time.steps % int(time.steps_max / 50) == 0:
-                    print("=", end="")
-                    sys.stdout.flush()
+            # Write the data to the output
+            file.write(time, system.body)
+
+            # Output the progress and flush the buffer
+            if self.verbose and time.steps_max >= 50 and time.steps % int(time.steps_max / 50) == 0:
+                print("=", end="")
+                sys.stdout.flush()
+                
+        # Safely close the file
+        file.close()
 
 
     # Determines if the data needs to be run again
