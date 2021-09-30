@@ -1,4 +1,4 @@
-import numpy as np
+from numpy import float64, sqrt, arctan2
 from .vector import Vector
 from .state import State
 from .model import *
@@ -14,28 +14,28 @@ class Body:
     state: State = State()
 
     # Radius
-    r: np.float64 = 0.0
+    r: float64 = 0.0
 
     # Theta
-    theta: np.float64 = 0.0
+    theta: float64 = 0.0
 
     # Specific angular momentum
     L: Vector = Vector()
 
     # Mass of the Body (in Code Units)
-    mass: np.float64 = 1.0
+    mass: float64 = 1.0
 
     # Specific energy
-    E: np.float64 = 0.0
+    E: float64 = 0.0
 
     # Kinetic energy
-    KE: np.float64 = 0.0
+    KE: float64 = 0.0
 
     # Potential energy
-    PE: np.float64 = 0.0
+    PE: float64 = 0.0
 
     # Error energy
-    E_error: np.float64 = 0.0
+    E_error: float64 = 0.0
 
     # Initial energy
     init_energy = None
@@ -48,7 +48,7 @@ class Body:
     ##########################################################################
 
     # Default Constructor
-    def __init__ (self, model: Model, mass: np.float64 = 1.0):
+    def __init__ (self, model: Model, mass: float64 = 1.0):
         self.model = model
         self.mass = mass
         self.reset()
@@ -75,11 +75,11 @@ class Body:
     # Updates the radius
     def update_radius (self):
         r2 = self.position.dot(self.position)
-        self.r = np.sqrt(r2)
+        self.r = sqrt(r2)
 
     # Updates the theta
     def update_theta (self):
-        self.theta = np.arctan2(self.position.y, self.position.x)
+        self.theta = arctan2(self.position.y, self.position.x)
 
 
     # Updates the Energy based on the calculation
@@ -113,7 +113,7 @@ class Body:
 
     # Returns the Radius
     @property
-    def radius (self) -> np.float64:
+    def radius (self) -> float64:
         return self.r
 
     # Returns the momentum
@@ -123,17 +123,17 @@ class Body:
 
     # Returns the Total Energy
     @property
-    def energy (self) -> np.float64:
+    def energy (self) -> float64:
         return self.E
 
     # Returns the Kinetic Energy
     @property
-    def kinetic_energy (self) -> np.float64:
+    def kinetic_energy (self) -> float64:
         return self.KE
 
     # Returns the Potential Energy
     @property
-    def potential_energy (self) -> np.float64:
+    def potential_energy (self) -> float64:
         return self.PE
 
 

@@ -3,7 +3,7 @@
 # Import all needed packages
 from modules.time import Time
 from modules.body import Body
-from modules.integrator import Integrator
+from modules.integrator import *
 from modules.analysis import Analysis
 from modules.plot import Plotter
 from modules.constants import *
@@ -16,7 +16,7 @@ from modules.model import *
 ##########################################################################
 
 # Simulation parameters
-dt = 0.01               # The step size
+dt = 0.0003               # The step size
 tmax = 2 * PI          # The max timestep
 output = "output.dat"   # The output filename
 plot_data = True        # Whether or not to plot data
@@ -65,11 +65,11 @@ time = Time(0, tmax, dt)
 # INTEGRATOR
 ##########################################################################
 
-inter = Integrator(model, output)
-inter.execute(time, body)
+integrator = LeapFrogIntegrator()
+integrator.execute(model, time, body, output)
 
 analysis = Analysis(output, True)
-analysis.output()
+#analysis.output()
 
 
 

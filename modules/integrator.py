@@ -1,38 +1,43 @@
-import numpy as np
 import os, sys
+from numpy import float64
 from .time import Time
 from .body import Body
 from .model import Model
 
-# Runs the integration
+
+# Base Integrator class
 class Integrator:
 
-    # Initialise the integrator with some timestep
-    def __init__ (self, model: Model, output: str = "output.dat"):
+    # Parameters that can be changed with the kwargs input
+
+    # A flag for showing progress to the screen
+    verbose = True
+
+    # Initialises the integrator with some output
+    def __init__ (self, name: str, **kwargs):
+        self.name = name
+        self.__dict__.update(kwargs)
+        print("%s Integrator Initialised." % name)
+
+
+
+    ##########################################################################
+    # INTEGRATION FUNCTIONS
+    ##########################################################################
+
+    # Updates a particle with new properties
+    # This function must be overriden by the integrator class
+    def update (self, body: Body, dt: float64):
+        pass
+
+
+    # Executes the integration with some bodies
+    # Takes in the model, time, list of bodies and the output file
+    def execute (self, model: Model, time: Time, body: Body, output: str = "output.dat"):
+
+        # Set the global variables
         self.model = model
         self.output = output
-
-
-    # Takes in an Input position, Velocity, Accleration and Delta Time
-    def step_leapfrog(self, body: Body, dt: float):
-
-        # Set up the initial velocity
-        body.state.v += 0.5 * dt * body.state.a
-
-        # Calculate the new parameters
-        body.state.x += dt * body.state.v
-        body.state.a = self.model.calc_acceleration(body.state.x)
-        body.state.v += 0.5 * dt * body.state.a
-
-        # Update the body
-        body.update()
-
-        # Return the values
-        return body
-
-
-    # Call the integrator with a starting position, velocity and acceleration
-    def execute (self, time: Time, body: Body):
 
         # Call check to see if needing to update
         if not self.needs_update(time, body):
@@ -40,7 +45,7 @@ class Integrator:
             return
 
         # Clear the output and open the file
-        with open(self.output, "w") as file:
+        with open(output, "w") as file:
 
             # Print status
             print("\nPerforming Integration...")
@@ -58,7 +63,7 @@ class Integrator:
                 time.increment()
 
                 # Run the integrator
-                body = self.step_leapfrog(body, time.delta)
+                self.update(body, time.delta)
 
                 # Output the progress and flush the buffer
                 if time.steps_max >= 50 and time.steps % int(time.steps_max / 50) == 0:
@@ -67,7 +72,7 @@ class Integrator:
 
 
     # Determines if the data needs to be run again
-    def needs_update (self, time, body):
+    def needs_update (self, time: Time, body: Body):
 
         # Create parameter line
         save = "%s\n%s\n%s" % (str(time), str(body), str(self.model.__dict__))
@@ -84,3 +89,29 @@ class Integrator:
 
         # Returns a requirement to restart
         return True
+
+
+
+
+
+# Runs the integration
+class LeapFrogIntegrator (Integrator):
+
+    # Initialise the integrator with some timestep
+    def __init__ (self, **kwargs):
+        super().__init__("Leap Frog", **kwargs)
+
+
+    # Takes in an Input position, Velocity, Accleration and Delta Time
+    def update(self, body: Body, dt: float):
+
+        # Set up the initial velocity
+        body.state.v += 0.5 * dt * body.state.a
+
+        # Calculate the new parameters
+        body.state.x += dt * body.state.v
+        body.state.a = self.model.calc_acceleration(body.state.x)
+        body.state.v += 0.5 * dt * body.state.a
+
+        # Update the body
+        body.update()
