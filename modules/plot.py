@@ -70,6 +70,9 @@ class Plotter:
             # Get the X and Y axis and check for valid
             x_axis = input("Plot Selection for (%sx%s) Axis: " % (Color.INPUT, Color.RESET)).lower()
 
+            # If empty
+            if x_axis == "": continue
+
             # Check to see if it an analysis value
             if self.analysis and (x_axis.isnumeric() and int(x_axis) >= len(self.headers) and int(x_axis) < len(self.headers) + len(Analysis.headers())) or x_axis in Analysis.headers():
                 # Determine the x axis header
@@ -93,6 +96,9 @@ class Plotter:
             y_axis_in = input("Plot Selection(s) for (%sy%s) Axis: " % (Color.INPUT, Color.RESET)).lower()
             y_axis_in = [y.strip() for y in y_axis_in.split(",")]
             if y_axis_in[0] == "q": break
+            if '"' in y_axis_in[0]: # For grouping multiple graphs
+                y_axis_in = y_axis_in[0].replace('"', "")
+                y_axis_in = [head for head in self.headers if y_axis_in in head.lower()]
             y_axis = []
 
             failed = False

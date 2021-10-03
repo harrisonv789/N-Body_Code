@@ -14,7 +14,7 @@ from modules.model import *
 ##########################################################################
 
 # Simulation parameters
-model_name = "oscillator"   # The name of the model
+model_name = "isochrone"   # The name of the model
 dt = 0.001                  # The step size
 tmax = 6 * PI               # The max timestep
 output = "output.dat"       # The output filename to store the data
