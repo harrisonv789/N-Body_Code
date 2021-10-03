@@ -8,42 +8,56 @@ from .constants import *
 # Base mathematical model
 class Model:
 
-    # Stores the initial state
-    init_state = State()
+    # The mass of the central body
+    M = 1.0
+
+
+    ##########################################################################
+    # Model Equations
 
     # Initialise the model
     def __init__ (self, model, **kwargs):
         self.model = model
         self.__dict__.update(kwargs)
 
-    # Get the initial State of the system
-    @property
-    def init_state (self) -> State:
+    # Calculates the radius of a particle from some position
+    def radius (self, position: Vector) -> np.float64:
+        return position.magnitude
+
+    # Calculates the potential of the system at some position
+    def potential (self, position: Vector) -> np.float64:
+        return 0.0
+
+    # Calculates the acceleration of a particle at some position
+    def acceleration (self, position: Vector) -> Vector:
+        return Vector(0, 0, 0)
+
+
+    ##########################################################################
+    # Initial State and equations
+    
+    # Stores the initial state
+    init_state = State()
+
+    # Get the initial State of the system at some radius
+    def init_state (self, radius: np.float64) -> State:
         # Get the initial vectors
-        x = self.initial_position ()
+        x = self.initial_position (radius)
         v = self.initial_velocity (x)
-        a = self.calc_acceleration (x)
+        a = self.acceleration (x)
 
         # Create the initial state
         return State(x, v, a)
-    
-    # Calculates the acceleration from some position
-    def calc_acceleration (self, position: Vector) -> Vector:
+
+    # Calculates the starting position at some radius
+    def initial_position (self, radius: np.float64) -> Vector:
         return Vector()
 
-    # Calculates the potential from the radius
-    def calc_potential (self, radius: np.float64) -> np.float64:
-        return 0.0
-
-    # Calculates the starting position
-    def initial_position (self) -> Vector:
+    # Calculates the starting velocity from some position
+    def initial_velocity (self, position: Vector) -> Vector:
         return Vector()
 
-    # Calculates the starting velocity
-    def initial_velocity (self, x: Vector) -> Vector:
-        return Vector()
-
-
+    ##########################################################################
 
 
 
@@ -52,12 +66,29 @@ class Model:
 # Kepler mathematical model
 class KeplerModel (Model):
 
+    # Semi-Major axis of the orbit
+    a       = 1.0
+
+    # Eccentricity of the orbits
+    e       = 0.0
+
+    # Angle of the orbits (TODO remove)
+    theta   = 0.0
+
+
+    ##########################################################################
+    # Model Equations
+
     # Initialise the model
     def __init__ (self, **kwargs):
         super().__init__("kepler", **kwargs)
 
-    # Calculates the acceleration from some position
-    def calc_acceleration (self, position: Vector) -> Vector:
+    # Calculates the potential of the system at some position
+    def potential (self, position: Vector) -> np.float64:
+        return -1.0 / self.radius(position)
+
+    # Calculates the acceleration of a particle at some position
+    def acceleration (self, position: Vector) -> Vector:
 
         # Compute the position value
         r3 = position.magnitude ** 3
@@ -70,19 +101,22 @@ class KeplerModel (Model):
         # Return the acceleration
         return a
 
-    # Calculates the potential from the radius
-    def calc_potential (self, radius: np.float64) -> np.float64:
-        return -1.0 / radius
 
-    # Calculates the starting position
-    def initial_position (self) -> Vector:
-        x = (self.a * (1 - self.e ** 2)) / (1 + self.e * np.cos(self.theta))
+    ##########################################################################
+    # Initial State and equations
+
+    # Calculates the starting position at some radius
+    def initial_position (self, radius: np.float64) -> Vector:
+        x = (self.a * (1 - self.e ** 2)) / (1 + self.e * np.cos(self.theta)) * radius 
         return Vector(x, 0, 0)
 
-    # Calculates the starting velocity
-    def initial_velocity (self, x: Vector) -> Vector:
+    # Calculates the starting velocity from some position
+    def initial_velocity (self, position: Vector) -> Vector:
         y = np.sqrt(1.0 / self.a) * np.sqrt((1 + self.e) / (1 - self.e))
         return Vector(0, y, 0)
+
+    ##########################################################################
+
 
 
 
@@ -90,36 +124,54 @@ class KeplerModel (Model):
 # Isochrone mathematical model
 class IsochroneModel (Model):
 
-    # Default parameters
-    v_mul = None    # The circular velocity multiplier
-    v_esc = None    # Using an escape velocity multipler
+    # The scale of the potential
+    b       = 0.1
+
+    # The circular velocity multiplier
+    v_mul   = None
+
+    # Using an escape velocity multipler
+    v_esc   = None
+
+
+    ##########################################################################
+    # Model Equations
 
     # Initialise the model
     def __init__ (self, **kwargs):
         super().__init__("isochrone", **kwargs)
 
-    # Calculates the acceleration from some position
-    def calc_acceleration (self, position: Vector) -> Vector:
+    # Calculates the potential of the system at some position
+    def potential (self, position: Vector) -> np.float64:
+        return (-1. * G * self.M) / (self.b + np.sqrt(self.b ** 2 + self.radius(position) ** 2))
 
-        # Calculate r
-        r = position.magnitude
+    # Calculates the acceleration of a particle at some position
+    def acceleration (self, position: Vector) -> Vector:
+
+        r = self.radius(position)
         c = np.sqrt(r ** 2 + self.b ** 2)
         a = position * ((-1. * G * self.M) / (c * ((self.b + c) ** 2)))
 
         # Return the acceleration
         return a
 
-    # Calculates the potential from the radius
-    def calc_potential (self, radius: np.float64) -> np.float64:
-        return (-1. * G * self.M) / (self.b + np.sqrt(self.b ** 2 + radius ** 2))
+    # Calculate the escape velocity
+    def escape_velocity (self, x: Vector) -> np.float32:
+        r = x.magnitude
+        phi = (G * self.M * -1.) / (self.b + np.sqrt(self.b ** 2 + r ** 2))
+        return np.sqrt(2. * abs(phi))
 
-    # Calculates the starting position
-    def initial_position (self) -> Vector:
-        return Vector(self.r, 0, 0)
+    
+    ##########################################################################
+    # Initial State and equations
+
+    # Calculates the starting position at some radius
+    def initial_position (self, radius: np.float64) -> Vector:
+        return Vector(radius, 0, 0)
 
     # Calculates the starting velocity
     def initial_velocity (self, x: Vector) -> Vector:
-        r = x.magnitude
+        r = x.mag
         c = np.sqrt(r ** 2 + self.b ** 2)
         v = np.sqrt((G * self.M * r ** 2) / (c * ((self.b + c) ** 2)))
         vec = Vector(0, v, 0)
@@ -132,11 +184,8 @@ class IsochroneModel (Model):
         else:
             return vec
 
-    # Calculate the escape velocity
-    def escape_velocity (self, x: Vector) -> np.float32:
-        r = x.magnitude
-        phi = (G * self.M * -1.) / (self.b + np.sqrt(self.b ** 2 + r ** 2))
-        return np.sqrt(2. * abs(phi))
+    ##########################################################################
+
 
 
 
@@ -144,12 +193,29 @@ class IsochroneModel (Model):
 # Oscillator mathematical model
 class OscillatorModel (Model):
 
-    # Default parameters
-    Omega = None
+    # The density of the oscillator
+    rho     = 1.0
+
+    # The orbit potential
+    Omega   = None
+
+
+    ##########################################################################
+    # Model Equations
 
     # Initialise the model
     def __init__ (self, **kwargs):
         super().__init__("oscillator", **kwargs)
+
+    # Calculates the potential of the system at some position
+    def potential (self, position: Vector) -> np.float64:
+        return -0.5 * (self.radius(position) ** 2) + (self.omega ** 2)
+
+    # Calculates the acceleration of a particle at some position
+    def acceleration (self, position: Vector) -> Vector:
+
+        # Return the acceleration
+        return position * -1. * (self.omega ** 2)
 
     # Calculates omega
     @property
@@ -157,23 +223,18 @@ class OscillatorModel (Model):
         if self.Omega == None:
             return np.sqrt(4.0 * PI * G * self.rho / 3.0)
         return self.Omega
-        
 
-    # Calculates the acceleration from some position
-    def calc_acceleration (self, position: Vector) -> Vector:
 
-        # Return the acceleration
-        return position * -1. * (self.omega ** 2)
-
-    # Calculates the potential from the radius
-    def calc_potential (self, radius: np.float64) -> np.float64:
-        return -0.5 * (radius ** 2) + (self.omega ** 2)
-
-    # Calculates the starting position
-    def initial_position (self) -> Vector:
-        return Vector(self.r, 0, 0)
+    ##########################################################################
+    # Initial State and equations
+    
+    # Calculates the starting position at some radius
+    def initial_position (self, radius: np.float64) -> Vector:
+        return Vector(radius, 0, 0)
 
     # Calculates the starting velocity
     def initial_velocity (self, x: Vector) -> Vector:
-        v = self.r * self.omega
+        v = x.mag * self.omega
         return Vector(0, v, 0)
+
+    ##########################################################################

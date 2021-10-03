@@ -26,7 +26,7 @@ class System:
 
         # Create the bodies with the initial state
         for idx in range(self.n_bodies):
-            state = self.model.init_state
+            state = self.model.init_state(1.0)
             b = Body(self.model, state)
             self.bodies.append(b)
 

@@ -116,7 +116,7 @@ class LeapFrogIntegrator (Integrator):
 
         # Calculate the new parameters
         body.state.x += dt * body.state.v
-        body.state.a = self.system.model.calc_acceleration(body.state.x)
+        body.state.a = self.system.model.acceleration(body.state.x)
         body.state.v += 0.5 * dt * body.state.a
 
         # Update the body

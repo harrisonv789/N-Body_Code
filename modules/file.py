@@ -42,7 +42,7 @@ class InitialFile:
     def write (time: Time, model: Model):
 
         # Create save lin line
-        save = "%s\n%s\n%s" % (str(time), str(model.init_state), str(model.__dict__))
+        save = "%s\n%s" % (str(time), str(model.__dict__))
 
         # Check to see if the file is the same
         if os.path.isfile("initial.dat"):
