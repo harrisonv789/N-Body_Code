@@ -33,6 +33,7 @@ class Plotter:
         print(  "--------------------------------------------------")
 
 
+
     # Loads the data from all outputs and stores it in a object
     def load_data (self):
         # Clear the keys
@@ -45,6 +46,7 @@ class Plotter:
             # If plotting the analysis too
             if self.analysis: 
                 self.data_analysis[output] = np.genfromtxt(Analysis.file_name(output), names=True)
+
 
 
     # Asks the user what to plot from a selection
@@ -98,7 +100,7 @@ class Plotter:
             if y_axis_in[0] == "q": break
             if '"' in y_axis_in[0]: # For grouping multiple graphs
                 y_axis_in = y_axis_in[0].replace('"', "")
-                y_axis_in = [head for head in self.headers if y_axis_in in head.lower()]
+                y_axis_in = [head for head in self.headers if y_axis_in == head.lower().split("_")[0]]
             y_axis = []
 
             failed = False
@@ -119,6 +121,7 @@ class Plotter:
 
             # Make a plot with the parameters
             self.plot(x_axis, y_axis, params)
+
 
 
     # Makes a simple plot
@@ -155,9 +158,10 @@ class Plotter:
 
                     # Plot the data
                     plt.plot(data[x], data[y], marker=marker, linestyle=linestyle, markersize=2, label=label)
-                
-        plt.xlabel("$\mathrm{" + x + "}$")
-        plt.ylabel("$\mathrm{" + "}$, $\mathrm{".join(y_plots) + "}$")
+        
+        # Get the X and Y labels
+        plt.xlabel(self.get_latex(x))
+        plt.ylabel(self.get_latex(y_plots))
 
         if len(y_plots) > 1 or self.multiple:
             plt.legend()
@@ -177,3 +181,25 @@ class Plotter:
 
         # Show the plot
         plt.show()
+
+
+
+    # Determines the latex symbol for a column name
+    def get_latex (self, columns) -> str:
+        # Remove listing for single columns
+        if type(columns) is list:
+            if len(columns) == 1:
+                columns = columns[0]
+        
+        # Check if columns is still a list
+        if type(columns) is list:
+            lat_c = []
+            for c in columns:
+                lat_c.append(self.get_latex(c))
+            return ", ".join(lat_c)
+        else:
+            if "_" not in columns:
+                return "$\mathrm{" + columns + "}$"
+            else:
+                data = columns.split("_")
+                return "$\mathrm{" + data[0] + "_{" + data[1] + "}}$"

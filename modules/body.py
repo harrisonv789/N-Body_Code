@@ -153,7 +153,7 @@ class Body:
     # Defines the list of parameters
     PARAMETERS = ["time", "pos_x", "pos_y", "pos_z", "vel_x", "vel_y", "vel_z", \
         "acc_x", "acc_y", "acc_z", "radius", "theta", "mom_x", "mom_y", "mom_z", "mass", \
-        "tot_E", "kin_E", "pot_E", "err_E"]
+        "E_tot", "E_kin", "E_pot", "E_err"]
 
     # Returns the headers of the body file
     @staticmethod

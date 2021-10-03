@@ -16,7 +16,7 @@ from modules.model import *
 # Simulation parameters
 model_name = "isochrone"   # The name of the model
 dt = 0.001                  # The step size
-tmax = 6 * PI               # The max timestep
+tmax = 2 * PI               # The max timestep
 output = "output.dat"       # The output filename to store the data
 use_analysis = False        # A flag for using the analysis tool
 plot_data = True            # A flag for plotting data
