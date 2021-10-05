@@ -66,15 +66,20 @@ class Plotter:
         
         print("\n  %s(Q)\tQUIT%s\n" % (Color.WARNING, Color.END))
 
+        # Remember previous commands (for x, y and params)
+        defaults = ["pos_x", "pos_y", "grid, anim"]
+
         # Loop while plotting
         while True:
-            print("---")
+            print("\n---")
 
             # Get the X and Y axis and check for valid
-            x_axis = input("Plot Selection for (%sx%s) Axis: " % (Color.INPUT, Color.RESET)).lower()
+            x_axis = input("\nPlot Selection for (%sx%s) Axis\n\tDefault = %s%s%s: " \
+                % (Color.INPUT, Color.RESET, Color.DEFAULT, defaults[0], Color.RESET)).lower()
 
-            # If empty
-            if x_axis == "": continue
+            # If empty, use defaults
+            if x_axis == "":
+                x_axis = defaults[0]
 
             # Check to see if it an analysis value
             if self.analysis and (x_axis.isnumeric() and int(x_axis) >= len(self.headers) and int(x_axis) < len(self.headers) + len(Analysis.headers())) or x_axis in Analysis.headers():
@@ -88,15 +93,23 @@ class Plotter:
 
                 # Plot this tool
                 self.plot(x_axis, [y_axis], ["grid"], analysis=True)
+                defaults = [x_axis, y_axis, "grid"]
                 continue
 
             # Otherwise, standard method
-            if x_axis[0] == "q": break 
+            if x_axis == "q": break 
             if not (x_axis.isnumeric() and int(x_axis) < len(self.headers)) and x_axis not in self.headers: continue
             x_axis = self.headers[int(x_axis)] if x_axis.isnumeric() else x_axis
-
+            
             # Get multiple Y axis
-            y_axis_in = input("Plot Selection(s) for (%sy%s) Axis: " % (Color.INPUT, Color.RESET)).lower()
+            y_axis_in = input("\nPlot Selection(s) for (%sy%s) Axis\n\tDefault = %s%s%s: " \
+                % (Color.INPUT, Color.RESET, Color.DEFAULT, defaults[1], Color.RESET)).lower()
+
+            # Check for missing y values
+            if y_axis_in == "":
+                y_axis_in = defaults[1]
+
+            # Get all y axis values
             y_axis_in = [y.strip() for y in y_axis_in.split(",")]
             if y_axis_in[0] == "q": break
             if '"' in y_axis_in[0]: # For grouping multiple graphs
@@ -117,11 +130,19 @@ class Plotter:
             if failed: continue
 
             # Get extra parameters
-            params = input("Please enter any parameters (separated) by commas: ").split(",")
-            params = [p.lower().strip() for p in params]
+            params = input("\nGraphing %sparameters%s (space separated)\n\tDefault = %s%s%s: " \
+                % (Color.INPUT, Color.RESET, Color.DEFAULT, defaults[2], Color.RESET)).lower()
 
+            # If missing parameters or quitting
+            if params == "q": break
+            if params == "": params = defaults[2]
+
+            # Split the parameters into a list
+            params = [p.lower().strip() for p in params.replace(",", " ").split(" ") if p != ""]
+            
             # Make a plot with the parameters
             self.plot(x_axis, y_axis, params)
+            defaults = [x_axis, ", ".join(y_axis), ", ".join(params)]
 
 
 
