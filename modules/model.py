@@ -170,15 +170,15 @@ class IsochroneModel (Model):
         return Vector(radius, 0, 0)
 
     # Calculates the starting velocity
-    def initial_velocity (self, x: Vector) -> Vector:
-        r = x.mag
+    def initial_velocity (self, position: Vector) -> Vector:
+        r = position.mag
         c = np.sqrt(r ** 2 + self.b ** 2)
         v = np.sqrt((G * self.M * r ** 2) / (c * ((self.b + c) ** 2)))
         vec = Vector(0, v, 0)
 
         # Return velocity based on input
         if self.v_esc != None:
-            return vec.normalized * self.escape_velocity(x) * self.v_esc
+            return vec.normalized * self.escape_velocity(position) * self.v_esc
         elif self.v_mul != None:
             return vec * self.v_mul
         else:
@@ -233,8 +233,67 @@ class OscillatorModel (Model):
         return Vector(radius, 0, 0)
 
     # Calculates the starting velocity
-    def initial_velocity (self, x: Vector) -> Vector:
-        v = x.mag * self.omega
+    def initial_velocity (self, position: Vector) -> Vector:
+        v = position.mag * self.omega
         return Vector(0, v, 0)
+
+    ##########################################################################
+
+
+
+
+
+# Logarithmic mathematical model
+class LogarithmicModel (Model):
+
+    # The scaling velocity
+    v0      = 1.0
+
+    # The core radius
+    Rc      = 1.0
+
+    # The flattening parameter, where q=1 gives a spherical potential
+    q       = 1.0
+
+
+    ##########################################################################
+    # Model Equations
+
+    # Initialise the model
+    def __init__ (self, **kwargs):
+        super().__init__("logarithmic", **kwargs)
+
+    # Calculates the potential of the system at some position
+    def potential (self, position: Vector) -> np.float64:
+        return 0.5 * (self.v0 ** 2) * np.log(self.psi(position))
+
+    # Calculates the acceleration of a particle at some position
+    def acceleration (self, position: Vector) -> Vector:
+
+        # Calculate the factor in front of the vector
+        fac = -1.0 * (self.v0 ** 2) * self.psi(position)
+
+        # Return the acceleration factor
+        return Vector(position.x, position.y, position.z / (self.q ** 2)) * fac
+
+    # Calculates the planar radius component
+    def radius_plane (self, position: Vector) -> np.float64:
+        return np.sqrt((position.x ** 2) + (position.y ** 2))
+
+    # Calculates psi from the equation
+    def psi (self, position: Vector) -> np.float64:
+        return (self.radius_plane(position) ** 2) + (self.Rc ** 2) + ((position.z ** 2) / (self.q ** 2))
+
+
+    ##########################################################################
+    # Initial State and equations
+    
+    # Calculates the starting position at some radius
+    def initial_position (self, radius: np.float64) -> Vector:
+        return Vector(radius, 0, 0)
+
+    # Calculates the starting velocity
+    def initial_velocity (self, position: Vector) -> Vector:
+        return Vector(0, self.v0, 0)
 
     ##########################################################################
