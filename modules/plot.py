@@ -164,12 +164,13 @@ class Plotter:
                     ax.plot(data[x], data[y], marker=marker, linestyle=linestyle, markersize=2, label=label)
         
         # Get the X and Y labels
-        ax.set_xlabel(self.get_latex(x))
-        ax.set_ylabel(self.get_latex(y_plots))
+        ax.set_xlabel(self.__get_latex(x))
+        ax.set_ylabel(self.__get_latex(y_plots))
 
         if len(y_plots) > 1 or self.multiple:
             ax.legend()
 
+        # Add the arguments
         if "equal" in args:
             ax.axis('equal')
         if "logx" in args:
@@ -183,19 +184,34 @@ class Plotter:
 
         # Animate the system
         if "anim" in args:
-            # Get the first poition of the data
-            point, = ax.plot(data[x][0], data[y_plots[0]][0], marker="o", color="black")
+
+            if "slow" in args:
+                interval = 100
+            elif "fast" in args:
+                interval = 10
+            else:
+                interval = 20
+
+            # Store a list of points
+            points = []
+
+            # Loop through the y plots
+            for y in y_plots:
+
+                # Get the first poition of the data
+                point, = ax.plot(data[x][0], data[y][0], marker="o", color="black")
+                points.append(point)
 
             # Create an update with some alpha value between 0 and 1
             def update (a: float):
-                idx = int(len(data[x]) * a)
-                point.set_data([[data[x][idx]], [data[y_plots[0]][idx]]])
-                return point,
+                val = int(len(data[x]) * a)
+                for idx, p in enumerate(points):
+                    p.set_data([[data[x][val]], [data[y_plots[idx]][val]]])
 
             # Create the animation call
-            ani = FuncAnimation(fig, update, interval=20, repeat=True, frames=np.linspace(0,1.0,100, endpoint=False))
+            anim = FuncAnimation(fig, update, interval=interval, repeat=True, frames=np.linspace(0,1.0,100, endpoint=False))
 
-        # Add the title
+        # Add a title
         plt.title(title)
 
         # Show the plot
@@ -204,7 +220,7 @@ class Plotter:
 
 
     # Determines the latex symbol for a column name
-    def get_latex (self, columns) -> str:
+    def __get_latex (self, columns) -> str:
         # Remove listing for single columns
         if type(columns) is list:
             if len(columns) == 1:
@@ -214,7 +230,7 @@ class Plotter:
         if type(columns) is list:
             lat_c = []
             for c in columns:
-                lat_c.append(self.get_latex(c))
+                lat_c.append(self.__get_latex(c))
             return ", ".join(lat_c)
         else:
             if "_" not in columns:
