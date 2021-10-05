@@ -1,6 +1,7 @@
 # Import relevant packages
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 from .color import Color
 from .analysis import Analysis
 
@@ -136,6 +137,9 @@ class Plotter:
         linestyle = "dashed" if "dashed" in args else "solid"
         linestyle = 'none' if "points" in args else linestyle
 
+        # Create the subplots
+        fig, ax = plt.subplots()
+
         # If analysis
         if analysis:
             row = self.headers.index(y_plots[0])
@@ -143,8 +147,8 @@ class Plotter:
             # Loop through each data file
             for idx, key in enumerate(files):
                 data = self.data_analysis[key]
-                plt.plot(idx, data[x][row], marker="o", linestyle=linestyle, markersize=10, label=key)
-                plt.tick_params(axis='x', which='both', bottom=False, top=False, labelbottom=False)
+                ax.plot(idx, data[x][row], marker="o", linestyle=linestyle, markersize=10, label=key)
+                ax.tick_params(axis='x', which='both', bottom=False, top=False, labelbottom=False)
 
         else:
             # Loop through each y plot
@@ -157,26 +161,41 @@ class Plotter:
                     label = "%s - %s" % (y, key) if self.multiple else y
 
                     # Plot the data
-                    plt.plot(data[x], data[y], marker=marker, linestyle=linestyle, markersize=2, label=label)
+                    ax.plot(data[x], data[y], marker=marker, linestyle=linestyle, markersize=2, label=label)
         
         # Get the X and Y labels
-        plt.xlabel(self.get_latex(x))
-        plt.ylabel(self.get_latex(y_plots))
+        ax.set_xlabel(self.get_latex(x))
+        ax.set_ylabel(self.get_latex(y_plots))
 
         if len(y_plots) > 1 or self.multiple:
-            plt.legend()
+            ax.legend()
 
         if "equal" in args:
-            plt.axis('equal')
+            ax.axis('equal')
         if "logx" in args:
-            plt.xscale("log")
+            ax.set_xscale("log")
         if "logy" in args:
-            plt.yscale("log")
+            ax.set_yscale("log")
         if "star" in args:
-            plt.plot(0, 0, "*", markersize=10)
+            ax.plot(0, 0, "*", markersize=10)
         if "grid" in args:
-            plt.grid()
+            ax.grid()
 
+        # Animate the system
+        if "anim" in args:
+            # Get the first poition of the data
+            point, = ax.plot(data[x][0], data[y_plots[0]][0], marker="o", color="black")
+
+            # Create an update with some alpha value between 0 and 1
+            def update (a: float):
+                idx = int(len(data[x]) * a)
+                point.set_data([[data[x][idx]], [data[y_plots[0]][idx]]])
+                return point,
+
+            # Create the animation call
+            ani = FuncAnimation(fig, update, interval=20, repeat=True, frames=np.linspace(0,1.0,100, endpoint=False))
+
+        # Add the title
         plt.title(title)
 
         # Show the plot
