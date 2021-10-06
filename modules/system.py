@@ -6,14 +6,18 @@ class System:
     # The number of bodies
     n_bodies: int = 0
 
+    # Initial radius
+    radius: float = 1.0
+
     # A list of all bodies
     bodies = []
 
     # Creates a new system with a number of bodies
     # By default, it will create 1 body
-    def __init__ (self, model: Model, n_bodies: int = 1):
+    def __init__ (self, model: Model, n_bodies: int = 1, **kwargs):
         self.model = model
         self.n_bodies = n_bodies
+        self.__dict__.update(kwargs)
         self.reset()
 
 
@@ -26,7 +30,7 @@ class System:
 
         # Create the bodies with the initial state
         for idx in range(self.n_bodies):
-            state = self.model.init_state(1.0)
+            state = self.model.init_state(self.radius)
             b = Body(self.model, state)
             self.bodies.append(b)
 

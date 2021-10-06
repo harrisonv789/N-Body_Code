@@ -11,6 +11,9 @@ class Model:
     # The mass of the central body
     M = 1.0
 
+    # The circular velocity multiplier
+    v_mul   = None
+
 
     ##########################################################################
     # Model Equations
@@ -126,9 +129,6 @@ class IsochroneModel (Model):
 
     # The scale of the potential
     b       = 0.1
-
-    # The circular velocity multiplier
-    v_mul   = None
 
     # Using an escape velocity multipler
     v_esc   = None
@@ -294,6 +294,10 @@ class LogarithmicModel (Model):
 
     # Calculates the starting velocity
     def initial_velocity (self, position: Vector) -> Vector:
-        return Vector(0, self.v0, 0)
+        vel = Vector(0, self.v0, 0)
+        if self.v_mul != None:
+            return self.v_mul * vel
+        else:
+            return vel
 
     ##########################################################################

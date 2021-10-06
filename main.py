@@ -14,7 +14,7 @@ from modules.model import *
 ##########################################################################
 
 # Simulation parameters
-model_name = "kepler"   # The name of the model
+model_name = "logarithmic"   # The name of the model
 dt = 0.0005                  # The step size
 tmax = 2 * PI               # The max timestep
 output = "output.dat"       # The output filename to store the data
@@ -51,6 +51,7 @@ elif model_name.lower() == "logarithmic":
         v0     = 1.0,
         Rc     = 0.2,
         q      = 0.8,
+        v_mul  = 1.01
     )
 
 else:
@@ -58,7 +59,7 @@ else:
 
 
 # Create the system and the time
-system = System(model, 1)
+system = System(model, 1, radius=2)
 time = Time(0, tmax, dt)
 
 
