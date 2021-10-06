@@ -13,6 +13,13 @@ class Plotter:
     data = {}
     data_analysis = {}
 
+    # Store a list of standard plots
+    preset_plots = {
+        "pos":      ["pos_x",   "pos_y",                        "equal, star, grid, anim"],
+        "3d":       ["pos_x",   "pos_y, pos_z",                 "star, anim, 3d"],
+        "energy":   ["time",    "E_tot, E_kin, E_pot, E_err",   "grid"]
+    }
+
     # Init constructor takes in some output data file and some arguments
     def __init__ (self, **kwargs):
 
@@ -65,22 +72,33 @@ class Plotter:
             for idx, h in enumerate(Analysis.headers()):
                 print("  %s(%d)\t%s" % (Color.PARAM, idx + len(self.headers), h))
         
-        print("\n  %s(Q)\tQUIT%s\n" % (Color.WARNING, Color.END))
+        print("\n  %s(Q)\tQUIT%s" % (Color.WARNING, Color.END))
 
         # Remember previous commands (for x, y and params)
-        defaults = ["pos_x", "pos_y, pos_z", "grid, anim, 3d"]
+        previous = ["", "", ""]
 
         # Loop while plotting
         while True:
             print("\n---")
 
+            # Ask for a preset
+            preset = input("\nPreset Plot\n\tOptions = %s%s%s: " \
+                % (Color.DEFAULT, ", ".join(self.preset_plots.keys()), Color.RESET)).lower()
+
+            # Check for quit
+            if preset == "q": break
+            
+            # Check if has a valid plot
+            if preset in self.preset_plots.keys():
+                previous = self.preset_plots[preset]
+
             # Get the X and Y axis and check for valid
-            x_axis = input("\nPlot Selection for (%sx%s) Axis\n\tDefault = %s%s%s: " \
-                % (Color.INPUT, Color.RESET, Color.DEFAULT, defaults[0], Color.RESET)).lower()
+            x_axis = input("\nPlot Selection for (%sx%s) Axis\n\tPrevious = %s%s%s: " \
+                % (Color.INPUT, Color.RESET, Color.DEFAULT, previous[0] if previous[0] != "" else "None", Color.RESET)).lower()
 
             # If empty, use defaults
             if x_axis == "":
-                x_axis = defaults[0]
+                x_axis = previous[0]
 
             # Check to see if it an analysis value
             if self.analysis and (x_axis.isnumeric() and int(x_axis) >= len(self.headers) and int(x_axis) < len(self.headers) + len(Analysis.headers())) or x_axis in Analysis.headers():
@@ -94,7 +112,7 @@ class Plotter:
 
                 # Plot this tool
                 self.plot(x_axis, [y_axis], ["grid"], analysis=True)
-                defaults = [x_axis, y_axis, "grid"]
+                previous = [x_axis, y_axis, "grid"]
                 continue
 
             # Otherwise, standard method
@@ -103,12 +121,12 @@ class Plotter:
             x_axis = self.headers[int(x_axis)] if x_axis.isnumeric() else x_axis
             
             # Get multiple Y axis
-            y_axis_in = input("\nPlot Selection(s) for (%sy%s) Axis\n\tDefault = %s%s%s: " \
-                % (Color.INPUT, Color.RESET, Color.DEFAULT, defaults[1], Color.RESET))
+            y_axis_in = input("\nPlot Selection(s) for (%sy%s) Axis\n\tPrevious = %s%s%s: " \
+                % (Color.INPUT, Color.RESET, Color.DEFAULT, previous[1] if previous[1] != "" else "None", Color.RESET))
 
             # Check for missing y values
             if y_axis_in == "":
-                y_axis_in = defaults[1]
+                y_axis_in = previous[1]
 
             # Get all y axis values
             y_axis_in = [y.strip() for y in y_axis_in.split(",")]
@@ -131,19 +149,19 @@ class Plotter:
             if failed: continue
 
             # Get extra parameters
-            params = input("\nGraphing %sparameters%s (space separated)\n\tDefault = %s%s%s: " \
-                % (Color.INPUT, Color.RESET, Color.DEFAULT, defaults[2], Color.RESET)).lower()
+            params = input("\nGraphing %sparameters%s (space separated)\n\tPrevious = %s%s%s: " \
+                % (Color.INPUT, Color.RESET, Color.DEFAULT, previous[2] if previous[2] != "" else "None", Color.RESET)).lower()
 
             # If missing parameters or quitting
             if params == "q": break
-            if params == "": params = defaults[2]
+            if params == "": params = previous[2]
 
             # Split the parameters into a list
             params = [p.lower().strip() for p in params.replace(",", " ").split(" ") if p != ""]
             
             # Make a plot with the parameters
             self.plot(x_axis, y_axis, params)
-            defaults = [x_axis, ", ".join(y_axis), ", ".join(params)]
+            previous = [x_axis, ", ".join(y_axis), ", ".join(params)]
 
 
 
