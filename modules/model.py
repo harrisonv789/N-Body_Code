@@ -42,11 +42,11 @@ class Model:
     # Stores the initial state
     init_state = State()
 
-    # Get the initial State of the system at some radius
-    def init_state (self, radius: np.float64) -> State:
+    # Get the initial State of the system at some radius and in some direction
+    def init_state (self, radius: np.float64, vel_vector = Vector(0, 1, 0)) -> State:
         # Get the initial vectors
         x = self.initial_position (radius)
-        v = self.initial_velocity (x)
+        v = self.initial_velocity (x) * vel_vector
         a = self.acceleration (x)
 
         # Create the initial state
@@ -57,8 +57,8 @@ class Model:
         return Vector()
 
     # Calculates the starting velocity from some position
-    def initial_velocity (self, position: Vector) -> Vector:
-        return Vector()
+    def initial_velocity (self, position: Vector):
+        return 0.0
 
     ##########################################################################
 
@@ -114,9 +114,9 @@ class KeplerModel (Model):
         return Vector(x, 0, 0)
 
     # Calculates the starting velocity from some position
-    def initial_velocity (self, position: Vector) -> Vector:
+    def initial_velocity (self, position: Vector) -> np.float64:
         y = np.sqrt(1.0 / self.a) * np.sqrt((1 + self.e) / (1 - self.e))
-        return Vector(0, y, 0)
+        return y
 
     ##########################################################################
 
@@ -156,7 +156,7 @@ class IsochroneModel (Model):
         return a
 
     # Calculate the escape velocity
-    def escape_velocity (self, x: Vector) -> np.float32:
+    def escape_velocity (self, x: Vector) -> np.float64:
         r = x.magnitude
         phi = (G * self.M * -1.) / (self.b + np.sqrt(self.b ** 2 + r ** 2))
         return np.sqrt(2. * abs(phi))
@@ -170,19 +170,18 @@ class IsochroneModel (Model):
         return Vector(radius, 0, 0)
 
     # Calculates the starting velocity
-    def initial_velocity (self, position: Vector) -> Vector:
+    def initial_velocity (self, position: Vector) -> np.float64:
         r = position.mag
         c = np.sqrt(r ** 2 + self.b ** 2)
         v = np.sqrt((G * self.M * r ** 2) / (c * ((self.b + c) ** 2)))
-        vec = Vector(0, v, 0)
 
         # Return velocity based on input
         if self.v_esc != None:
-            return vec.normalized * self.escape_velocity(position) * self.v_esc
+            return v * self.escape_velocity(position) * self.v_esc
         elif self.v_mul != None:
-            return vec * self.v_mul
+            return v * self.v_mul
         else:
-            return vec
+            return v
 
     ##########################################################################
 
@@ -233,9 +232,9 @@ class OscillatorModel (Model):
         return Vector(radius, 0, 0)
 
     # Calculates the starting velocity
-    def initial_velocity (self, position: Vector) -> Vector:
+    def initial_velocity (self, position: Vector) -> np.float64:
         v = position.mag * self.omega
-        return Vector(0, v, 0)
+        return v
 
     ##########################################################################
 
@@ -293,11 +292,11 @@ class LogarithmicModel (Model):
         return Vector(radius, 0, 0)
 
     # Calculates the starting velocity
-    def initial_velocity (self, position: Vector) -> Vector:
-        vel = Vector(0, self.v0, 0)
+    def initial_velocity (self, position: Vector) -> np.float64:
+        v = self.v0
         if self.v_mul != None:
-            return self.v_mul * vel
+            return self.v_mul * v
         else:
-            return vel
+            return v
 
     ##########################################################################

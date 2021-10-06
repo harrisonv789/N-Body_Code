@@ -1,5 +1,6 @@
 from .model import Model
 from .body import Body
+from .vector import Vector
 
 class System:
 
@@ -8,6 +9,9 @@ class System:
 
     # Initial radius
     radius: float = 1.0
+
+    # Initial velocity vector
+    vel_vec: Vector = Vector(0, 1.0, 0)
 
     # A list of all bodies
     bodies = []
@@ -30,7 +34,7 @@ class System:
 
         # Create the bodies with the initial state
         for idx in range(self.n_bodies):
-            state = self.model.init_state(self.radius)
+            state = self.model.init_state(self.radius, self.vel_vec)
             b = Body(self.model, state)
             self.bodies.append(b)
 

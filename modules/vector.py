@@ -209,6 +209,7 @@ class Vector:
 
     # Gets a specific x, y or z from the list using []
     # If invalid index used, then return a 0
+    ''' # COMMENTED BECAUSE OF NDARRAY ISSUES
     def __getitem__(self, idx: int) -> float64:
         if idx == 0:
             return self.x
@@ -217,6 +218,7 @@ class Vector:
         if idx == 2:
             return self.z
         return 0.0
+    '''
 
     # Sets a particular item in the list
     def __setitem__(self, idx: int, val: float64):

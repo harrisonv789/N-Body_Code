@@ -51,7 +51,7 @@ elif model_name.lower() == "logarithmic":
         v0     = 1.0,
         Rc     = 0.2,
         q      = 0.8,
-        v_mul  = 1.01
+        v_mul  = 1.0
     )
 
 else:
@@ -59,7 +59,7 @@ else:
 
 
 # Create the system and the time
-system = System(model, 1, radius=2)
+system = System(model, 1)
 time = Time(0, tmax, dt)
 
 
