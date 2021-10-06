@@ -14,8 +14,8 @@ from modules.model import *
 ##########################################################################
 
 # Simulation parameters
-model_name = "logarithmic"   # The name of the model
-dt = 0.001                  # The step size
+model_name = "kepler"   # The name of the model
+dt = 0.0005                  # The step size
 tmax = 2 * PI               # The max timestep
 output = "output.dat"       # The output filename to store the data
 use_analysis = False        # A flag for using the analysis tool

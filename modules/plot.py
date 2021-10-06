@@ -2,6 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
+from mpl_toolkits import mplot3d
 from .color import Color
 from .analysis import Analysis
 
@@ -67,7 +68,7 @@ class Plotter:
         print("\n  %s(Q)\tQUIT%s\n" % (Color.WARNING, Color.END))
 
         # Remember previous commands (for x, y and params)
-        defaults = ["pos_x", "pos_y", "grid, anim"]
+        defaults = ["pos_x", "pos_y, pos_z", "grid, anim, 3d"]
 
         # Loop while plotting
         while True:
@@ -103,7 +104,7 @@ class Plotter:
             
             # Get multiple Y axis
             y_axis_in = input("\nPlot Selection(s) for (%sy%s) Axis\n\tDefault = %s%s%s: " \
-                % (Color.INPUT, Color.RESET, Color.DEFAULT, defaults[1], Color.RESET)).lower()
+                % (Color.INPUT, Color.RESET, Color.DEFAULT, defaults[1], Color.RESET))
 
             # Check for missing y values
             if y_axis_in == "":
@@ -114,7 +115,7 @@ class Plotter:
             if y_axis_in[0] == "q": break
             if '"' in y_axis_in[0]: # For grouping multiple graphs
                 y_axis_in = y_axis_in[0].replace('"', "")
-                y_axis_in = [head for head in self.headers if y_axis_in == head.lower().split("_")[0]]
+                y_axis_in = [head for head in self.headers if y_axis_in.lower() == head.lower().split("_")[0]]
             y_axis = []
 
             failed = False
@@ -158,8 +159,14 @@ class Plotter:
         linestyle = "dashed" if "dashed" in args else "solid"
         linestyle = 'none' if "points" in args else linestyle
 
+        # Will set a 3D graph if it is an argument and 2 Y values are used (the second for Z)
+        _3d = "3d" in args and len(y_plots) == 2 and not analysis
+
         # Create the subplots
-        fig, ax = plt.subplots()
+        if not _3d: fig, ax = plt.subplots()
+        else:
+            fig = plt.figure()     
+            ax = plt.axes(projection='3d')
 
         # If analysis
         if analysis:
@@ -172,34 +179,56 @@ class Plotter:
                 ax.tick_params(axis='x', which='both', bottom=False, top=False, labelbottom=False)
 
         else:
-            # Loop through each y plot
-            for key in files:
-                
-                data = self.data[key]
+            # 3D graphing
+            if _3d:
+                # Loop through each y plot
+                for key in files:          
+                    data = self.data[key]
+                    ax.plot3D(data[x], data[y_plots[0]], data[y_plots[1]], marker=marker, linestyle=linestyle, markersize=2, label="3D plot")
 
-                for y in y_plots:
-                    # Determine label
-                    label = "%s - %s" % (y, key) if self.multiple else y
+            # 2D graphing
+            else:
+                # Loop through each y plot
+                for key in files:
+                    
+                    data = self.data[key]
 
-                    # Plot the data
-                    ax.plot(data[x], data[y], marker=marker, linestyle=linestyle, markersize=2, label=label)
-        
-        # Get the X and Y labels
+                    for y in y_plots:
+                        # Determine label
+                        label = "%s - %s" % (y, key) if self.multiple else y
+
+                        # Plot the data
+                        ax.plot(data[x], data[y], marker=marker, linestyle=linestyle, markersize=2, label=label)
+            
+        # Get the X 
         ax.set_xlabel(self.__get_latex(x))
-        ax.set_ylabel(self.__get_latex(y_plots))
 
-        if len(y_plots) > 1 or self.multiple:
+        # Get the Y and Z label
+        if _3d:
+            ax.set_ylabel(self.__get_latex(y_plots[0]))
+            ax.set_zlabel(self.__get_latex(y_plots[1]))
+        # Get the Y label for 2D plots
+        else:
+            ax.set_ylabel(self.__get_latex(y_plots))
+
+        # Add a legend
+        if (len(y_plots) > 1 and not _3d) or self.multiple:
             ax.legend()
 
         # Add the arguments
         if "equal" in args:
-            ax.axis('equal')
+            if not _3d: ax.axis('equal')
+            else:
+                world_limits = ax.get_w_lims()
+                ax.set_box_aspect((world_limits[1]-world_limits[0],world_limits[3]-world_limits[2],world_limits[5]-world_limits[4]))
+
         if "logx" in args:
             ax.set_xscale("log")
         if "logy" in args:
             ax.set_yscale("log")
         if "star" in args:
-            ax.plot(0, 0, "*", markersize=10)
+            if _3d: ax.plot3D(0, 0, 0, "*", markersize=10)
+            else: ax.plot(0, 0, "*", markersize=10)
         if "grid" in args:
             ax.grid()
 
@@ -216,18 +245,30 @@ class Plotter:
             # Store a list of points
             points = []
 
-            # Loop through the y plots
-            for y in y_plots:
-
-                # Get the first poition of the data
-                point, = ax.plot(data[x][0], data[y][0], marker="o", color="black")
+            # If 3d animation
+            if _3d:
+                point, = ax.plot3D(data[x][0], data[y_plots[0]][0], data[y_plots[1]][0], marker="o", color="black")
                 points.append(point)
+            
+            # If 2d animation
+            else:
+                # Loop through the y plots
+                for y in y_plots:
+
+                    # Get the first position of the data
+                    point, = ax.plot(data[x][0], data[y][0], marker="o", color="black")
+                    points.append(point)
 
             # Create an update with some alpha value between 0 and 1
             def update (a: float):
                 val = int(len(data[x]) * a)
                 for idx, p in enumerate(points):
-                    p.set_data([[data[x][val]], [data[y_plots[idx]][val]]])
+                    if _3d:
+                        p.set_data(data[x][val], data[y_plots[0]][val])
+                        p.set_3d_properties(data[y_plots[1]][val])
+                    else:   
+                        p.set_data([[data[x][val]], [data[y_plots[idx]][val]]])
+                    
 
             # Create the animation call
             anim = FuncAnimation(fig, update, interval=interval, repeat=True, frames=np.linspace(0,1.0,100, endpoint=False))
