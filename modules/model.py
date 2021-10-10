@@ -270,7 +270,7 @@ class LogarithmicModel (Model):
     def acceleration (self, position: Vector) -> Vector:
 
         # Calculate the factor in front of the vector
-        fac = -1.0 * (self.v0 ** 2) * self.psi(position)
+        fac = -1.0 * (self.v0 ** 2) / self.psi(position)
 
         # Return the acceleration factor
         return Vector(position.x, position.y, position.z / (self.q ** 2)) * fac
@@ -293,7 +293,7 @@ class LogarithmicModel (Model):
 
     # Calculates the starting velocity
     def initial_velocity (self, position: Vector) -> np.float64:
-        v = self.v0
+        v = (self.radius_plane(position) * self.v0) / np.sqrt(self.psi(position))
         if self.v_mul != None:
             return self.v_mul * v
         else:

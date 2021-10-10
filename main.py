@@ -15,8 +15,8 @@ from modules.model import *
 
 # Simulation parameters
 model_name = "logarithmic"   # The name of the model
-dt = 0.0005                  # The step size
-tmax = 2 * PI               # The max timestep
+dt = 0.001                  # The step size
+tmax =4 * PI               # The max timestep
 output = "output.dat"       # The output filename to store the data
 use_analysis = False        # A flag for using the analysis tool
 plot_data = True            # A flag for plotting data
@@ -51,7 +51,7 @@ elif model_name.lower() == "logarithmic":
         v0     = 1.0,
         Rc     = 0.2,
         q      = 0.8,
-        v_mul  = 1.0
+        v_mul  = 0.05
     )
 
 else:
@@ -59,7 +59,7 @@ else:
 
 
 # Create the system and the time
-system = System(model, 1)
+system = System(model, 1, radius=1.0, vel_vec=Vector(0, 1, 1))
 time = Time(0, tmax, dt)
 
 

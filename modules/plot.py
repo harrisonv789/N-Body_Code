@@ -17,7 +17,8 @@ class Plotter:
     preset_plots = {
         "pos":      ["pos_x",   "pos_y",                        "equal, star, grid, anim"],
         "3d":       ["pos_x",   "pos_y, pos_z",                 "star, anim, 3d"],
-        "energy":   ["time",    "E_tot, E_kin, E_pot, E_err",   "grid"]
+        "energy":   ["time",    "E_tot, E_kin, E_pot, E_err",   "grid"],
+        "timepos":  ["time",   "pos_x, pos_y, pos_z",           "grid"],
     }
 
     # Init constructor takes in some output data file and some arguments
