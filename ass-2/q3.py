@@ -4,10 +4,19 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Constants
+
+##########################################################################
+# CONSTANTS
+##########################################################################
+
 M_d = 1e11      # Mass of disk in Solar masses
 R_d = 5.0       # Radius of disk in kiloparsecs
 G = 6.674e-11   # Gravitational constants 
+
+
+##########################################################################
+# CONVERSIONS
+##########################################################################
 
 # Returns the mass in kg from solar masses
 def Msol_to_Mkg (M_sol):
@@ -16,8 +25,12 @@ def Msol_to_Mkg (M_sol):
 # Returns the distance in kpc from meters
 def kpc_to_m (kpc):
     return kpc * 3.086e19
-    
 
+
+##########################################################################
+# PHYSICAL FUNCTIONS
+##########################################################################
+ 
 # Function for the velocity of the disk at some radius
 def v_circ (R):
     # Convert units
@@ -33,6 +46,11 @@ def v_circ (R):
 
     # Return result
     return np.sqrt(squared)
+
+
+##########################################################################
+# GRAPHING
+##########################################################################
 
 # Create a plot of radius from 0 to 4 disk radius
 R = np.linspace(0, 4.0 * R_d, 1000)
