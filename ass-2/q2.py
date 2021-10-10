@@ -19,7 +19,7 @@ from modules.model import *
 
 # Simulation parameters
 dt = 0.001                  # The step size
-tmax = 2.06 * PI               # The max timestep
+tmax = 2.06 * PI            # The max timestep
 output = "output.dat"       # The output filename to store the data
 
 
@@ -105,3 +105,15 @@ plotter = Plotter(outputs=["output.dat"])
 plotter.plot("pos_x", ["pos_z"], "equal, star, grid, anim, slow", "Question 2)d. Orbit Graph")
 
 
+##########################################################################
+# QUESTION E
+##########################################################################
+
+time.end = 40 * PI
+model.v_mul = 1.0
+system = System(model, 1, radius=1.0, vel_vec=Vector(0, 1, 1))
+integrator.execute(system, time, output)
+
+# Plot the orbits
+plotter = Plotter(outputs=["output.dat"])
+plotter.plot("pos_x", ["pos_y", "pos_z"], "3d, star, grid, anim, slow", "Question 2)e. 3D Orbit Graph")
