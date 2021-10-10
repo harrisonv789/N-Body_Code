@@ -19,7 +19,7 @@ from modules.model import *
 
 # Simulation parameters
 dt = 0.001                  # The step size
-tmax = 2 * PI               # The max timestep
+tmax = 2.06 * PI               # The max timestep
 output = "output.dat"       # The output filename to store the data
 
 
@@ -51,22 +51,28 @@ integrator.execute(system, time, output)
 
 # Creates a plotter with the outputs
 plotter = Plotter(outputs=["output.dat"])
-plotter.plot("pos_x", ["pos_y"], "equal, star, grid, anim", "Question 2)a.")
+plotter.plot("pos_x", ["pos_y"], "equal, star, grid, anim", "Question 2)a. Orbit Graph")
 
 
 ##########################################################################
 # QUESTION B
 ##########################################################################
 
-# Question i
-time.end = 10.75
+time.end = 7.17
 model.v_mul = 1.01
 system = System(model, 1, radius=0.52915)
 integrator.execute(system, time, output)
 
 # Plot the orbits
 plotter = Plotter(outputs=["output.dat"])
-plotter.plot("time", ["theta"], "grid", "Question 2)b.i.")
-plotter.plot("pos_x", ["pos_y"], "equal, star, grid, anim", "Question 2)b.i.")
-plotter.plot("time", ["radius", "E_kin"], "grid", "Question 2)b.i.")
-plotter.plot("time", ["E_pot", "E_kin", "E_tot", "E_err"], "grid", "Question 2)b.i.")
+
+# Question i
+plotter.plot("pos_x", ["pos_y"], "equal, star, grid, anim", "Question 2)b.i. Orbit Graph")
+
+# Question ii
+plotter.plot("time", ["radius", "pos_x"], "grid, diffaxis", "Question 2)b.ii. Radius vs X Position")
+plotter.plot("time", ["radius", "pos_y"], "grid, diffaxis", "Question 2)b.ii. Radius vs Y Position")
+plotter.plot("time", ["radius", "theta"], "grid, diffaxis", "Question 2)b.ii. Radius vs Angle")
+
+# Question iii
+plotter.plot("time", ["E_pot", "E_kin", "E_tot", "E_err"], "grid", "Question 2)b.iii. Conservation of Energy")

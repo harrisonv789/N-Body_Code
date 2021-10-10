@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from mpl_toolkits import mplot3d
+from numpy.lib.function_base import diff
 from .color import Color
 from .analysis import Analysis
 
@@ -187,6 +188,10 @@ class Plotter:
             fig = plt.figure()     
             ax = plt.axes(projection='3d')
 
+        # In the case of multiple axis
+        diff_axis = "diffaxis" in args and len(y_plots) == 2
+        if diff_axis: ax2 = ax.twinx()
+
         # If analysis
         if analysis:
             row = self.headers.index(y_plots[0])
@@ -212,13 +217,14 @@ class Plotter:
                     
                     data = self.data[key]
 
-                    for y in y_plots:
+                    for idx, y in enumerate(y_plots):
                         # Determine label
                         label = "%s - %s" % (y, key) if self.multiple else y
 
                         # Plot the data
-                        ax.plot(data[x], data[y], marker=marker, linestyle=linestyle, markersize=2, label=label)
-            
+                        if idx == 0 or not diff_axis:
+                            ax.plot(data[x], data[y], marker=marker, linestyle=linestyle, markersize=2, label=label)
+                        else: ax2.plot(data[x], data[y], marker=marker, linestyle=linestyle, markersize=2, label=label, color='orange')
         # Get the X 
         ax.set_xlabel(self.__get_latex(x))
 
@@ -228,11 +234,17 @@ class Plotter:
             ax.set_zlabel(self.__get_latex(y_plots[1]))
         # Get the Y label for 2D plots
         else:
-            ax.set_ylabel(self.__get_latex(y_plots))
+            if diff_axis:
+                ax.set_ylabel(self.__get_latex(y_plots[:1]))
+                ax2.set_ylabel(self.__get_latex(y_plots[1:]))
+            else:
+                ax.set_ylabel(self.__get_latex(y_plots))
 
         # Add a legend
         if (len(y_plots) > 1 and not _3d) or self.multiple:
             ax.legend()
+            if diff_axis:
+                ax2.legend()
 
         # Add the arguments
         if "equal" in args:
