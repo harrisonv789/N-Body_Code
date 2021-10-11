@@ -122,6 +122,6 @@ plt.show()
 
 # Create the subplots for the more accurate estimates
 fig, ax = plt.subplots()
-plot_a_values(ax, [26, 27, 28, 29, 30])
-ax.set_ylim(210, 230)
+plot_a_values(ax, [28, 29, 30, 31, 32])
+ax.set_ylim(210, 240)
 plt.show()
