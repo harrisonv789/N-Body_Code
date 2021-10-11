@@ -2,13 +2,11 @@
 
 # Import all needed packages
 from modules.time import Time
-from modules.body import Body
-from modules.integrator import Integrator
+from modules.system import System
+from modules.integrator import *
 from modules.analysis import Analysis
 from modules.plot import Plotter
-from modules.constants import *
 from modules.model import *
-
 
 
 ##########################################################################
@@ -16,11 +14,13 @@ from modules.model import *
 ##########################################################################
 
 # Simulation parameters
-dt = 0.01               # The step size
-tmax = 2 * PI          # The max timestep
-output = "output.dat"   # The output filename
-plot_data = True        # Whether or not to plot data
-model_name = "kepler"   # The name of the model
+model_name = "logarithmic"  # The name of the model
+dt = 0.001                  # The step size
+tmax = 4 * PI               # The max timestep
+output = "output.dat"       # The output filename to store the data
+use_analysis = True         # A flag for using the analysis tool
+plot_data = True            # A flag for plotting data
+
 
 
 ##########################################################################
@@ -31,32 +31,35 @@ model_name = "kepler"   # The name of the model
 if model_name.lower() == "kepler":
     model = KeplerModel(
         a       = 1.0, 
-        e       = 0.7, 
+        e       = 0.9,
         theta   = 0.0,
-        M       = 1.0
     )
 
 elif model_name.lower() == "isochrone":
     model = IsochroneModel(
-        r       = 1.0,
         b       = 0.1,
         v_esc   = 0.5,
-        M       = 1.0
     )
 
 elif model_name.lower() == "oscillator":
     model = OscillatorModel(
-        r       = 1.0,
         rho     = 0.5,
-        M       = 1.0
+    )
+
+elif model_name.lower() == "logarithmic":
+    model = LogarithmicModel(
+        v0     = 1.0,
+        Rc     = 0.2,
+        q      = 0.8,
+        v_mul  = 1.01
     )
 
 else:
     raise Exception("Invalid model name used.")
 
 
-# Create the initial state and time
-body = Body(model)
+# Create the system and the time
+system = System(model, 1, radius=0.529, vel_vec=Vector(0, 1, 0))
 time = Time(0, tmax, dt)
 
 
@@ -65,11 +68,13 @@ time = Time(0, tmax, dt)
 # INTEGRATOR
 ##########################################################################
 
-inter = Integrator(model, output)
-inter.execute(time, body)
+integrator = LeapFrogIntegrator()
+integrator.execute(system, time, output)
 
-analysis = Analysis(output, True)
-analysis.output()
+# If using the analysis tool
+if use_analysis:
+    analysis = Analysis(output, True)
+    analysis.output()
 
 
 

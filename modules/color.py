@@ -26,14 +26,20 @@ class Color:
     
     # The following are standards to follow
     END         = '\033[0m'     # Resets back to the standard
-    HEADER      = '\033[0;1m'     # Header text
+    HEADER      = WHITE_B       # Header text
     PARAM       = GREEN_B       # The color used for parameters
     DEFAULT     = MAGENTA_B     # The color used for a default value
     INPUT       = CYAN_B        # The color used for a inpiut value
+    SUCCESS     = GREEN_B       # The color used for a success message
     WARNING     = '\033[93m'    # Yellow Warning message
     ERROR       = '\033[91m'    # Red Error message
     BOLD        = '\033[1m'     # Standard, but just bold
     UNDERLINE   = '\033[4m'     # Standard, but with underline
+
+    # Prints a line at a particular color
+    @staticmethod
+    def print (value: str, color: str = '\033[0m'):
+        print("%s%s%s" % (color, value, '\033[0m'))
 
    
 
