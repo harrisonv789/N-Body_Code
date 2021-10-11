@@ -254,6 +254,9 @@ class LogarithmicModel (Model):
     # The flattening parameter, where q=1 gives a spherical potential
     q       = 1.0
 
+    # Whether to use the circular velocity or v0 velocity
+    use_v_circ = True
+
 
     ##########################################################################
     # Model Equations
@@ -294,6 +297,8 @@ class LogarithmicModel (Model):
     # Calculates the starting velocity
     def initial_velocity (self, position: Vector) -> np.float64:
         v = (self.radius_plane(position) * self.v0) / np.sqrt(self.psi(position))
+        if not self.use_v_circ:
+            v = self.v0
         if self.v_mul != None:
             return self.v_mul * v
         else:

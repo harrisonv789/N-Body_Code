@@ -18,7 +18,7 @@ from modules.model import *
 ##########################################################################
 
 # Simulation parameters
-dt = 0.001                  # The step size
+dt = 0.01                  # The step size
 tmax = 2.06 * PI            # The max timestep
 output = "output.dat"       # The output filename to store the data
 
@@ -58,7 +58,7 @@ plotter.plot("pos_x", ["pos_y"], "equal, star, grid, anim", "Question 2)a. Orbit
 # QUESTION B
 ##########################################################################
 
-time.end = 7.109
+time.end = 7.15
 model.v_mul = 1.01
 system = System(model, 1, radius=0.52915)
 integrator.execute(system, time, output)
@@ -82,8 +82,9 @@ plotter.plot("time", ["E_pot", "E_kin", "E_tot", "E_err"], "grid", "Question 2)b
 # QUESTION C
 ##########################################################################
 
-time.end = 150
+time.end = 80 * PI
 model.v_mul = 1.0
+model.use_v_circ = False
 system = System(model, 1, radius=1.0, vel_vec=Vector(0, 0, 1))
 integrator.execute(system, time, output)
 
@@ -109,7 +110,6 @@ plotter.plot("pos_x", ["pos_z"], "equal, star, grid, anim, slow", "Question 2)d.
 # QUESTION E
 ##########################################################################
 
-time.end = 40 * PI
 model.v_mul = 1.0
 system = System(model, 1, radius=1.0, vel_vec=Vector(0, 1, 1))
 integrator.execute(system, time, output)
