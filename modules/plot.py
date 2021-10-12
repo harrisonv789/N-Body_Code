@@ -266,12 +266,15 @@ class Plotter:
         # Animate the system
         if "anim" in args:
 
+            # Set the animation speed
+            interval = float(1000.0 / len(data[x]))
             if "slow" in args:
-                interval = 100
+                interval *= 3.0
             elif "fast" in args:
-                interval = 10
+                interval *= 0.3
             else:
-                interval = 20
+                interval *= 1.0
+            interval = int(interval) if interval > 1 else 1
 
             # Store a list of points
             points = []

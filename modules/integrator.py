@@ -42,7 +42,7 @@ class Integrator:
 
     # Executes the integration with a system
     # Takes in the model, time, list of bodies and the output file
-    def execute (self, system: System, time: Time, output: str = "output.dat"):
+    def execute (self, system: System, time: Time, output: str = "output.dat", output_timestep: float = 1):
 
         # Reset the time
         time.reset()
@@ -66,6 +66,9 @@ class Integrator:
         # Write the initial data to the file
         file.write(time, system.body)
 
+        # Get the next write time
+        next_write_time = 0.0
+
         # Loop while the time is less than maximum
         while time.running:
 
@@ -78,8 +81,11 @@ class Integrator:
                 # Run the integrator on the bodies
                 self.update(body, time.delta)
 
-            # Write the data to the output
-            file.write(time, system.body)
+            # Check if it is time to write
+            if time.time >= next_write_time or time.steps == time.steps_max:
+                # Write the data to the output
+                file.write(time, system.body)
+                next_write_time = time.time + output_timestep
 
             # Output the progress and flush the buffer
             if self.verbose and time.steps_max >= self.ticks and time.steps % int(time.steps_max / self.ticks) == 0:

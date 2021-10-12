@@ -16,6 +16,7 @@ from modules.model import *
 # Simulation parameters
 model_name = "logarithmic"  # The name of the model
 dt = 0.001                  # The step size
+output_dt = 0.01            # The output timestep to save data
 tmax = 4 * PI               # The max timestep
 output = "output.dat"       # The output filename to store the data
 use_analysis = True         # A flag for using the analysis tool
@@ -69,7 +70,7 @@ time = Time(0, tmax, dt)
 ##########################################################################
 
 integrator = LeapFrogIntegrator()
-integrator.execute(system, time, output)
+integrator.execute(system, time, output, output_timestep = output_dt)
 
 # If using the analysis tool
 if use_analysis:
