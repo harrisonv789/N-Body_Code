@@ -17,9 +17,9 @@ from modules.model import *
 model_name = "logarithmic"  # The name of the model
 dt = 0.001                  # The step size
 output_dt = 0.01            # The output timestep to save data
-tmax = 4 * PI               # The max timestep
-output = "output.dat"       # The output filename to store the data
-use_analysis = True         # A flag for using the analysis tool
+tmax = 1 * PI               # The max timestep
+output = "body.dat"       # The output filename to store the data
+use_analysis = False         # A flag for using the analysis tool
 plot_data = True            # A flag for plotting data
 
 
@@ -52,7 +52,7 @@ elif model_name.lower() == "logarithmic":
         v0     = 1.0,
         Rc     = 0.2,
         q      = 0.8,
-        v_mul  = 1.01
+        v_mul  = 0.5
     )
 
 else:
@@ -60,7 +60,7 @@ else:
 
 
 # Create the system and the time
-system = System(model, 1, radius=0.529, vel_vec=Vector(0, 1, 0))
+system = System(model, n_bodies=2, radius=0.529, vel_vec=Vector(0, 1, 0))
 time = Time(0, tmax, dt)
 
 
@@ -74,7 +74,7 @@ integrator.execute(system, time, output, output_timestep = output_dt)
 
 # If using the analysis tool
 if use_analysis:
-    analysis = Analysis(output, True)
+    analysis = Analysis("output_00000.dat", True)
     analysis.output()
 
 
@@ -87,5 +87,5 @@ if use_analysis:
 if plot_data:
 
     # Creates a plotter with the outputs
-    plotter = Plotter(outputs=["output.dat"])
+    plotter = Plotter()
     plotter.ask_plot()

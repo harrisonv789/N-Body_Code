@@ -8,8 +8,8 @@ from .model import Model
 class OutputFile:
 
     # Constructor to initialise a file with some path
-    def __init__ (self, path: str, write: bool = True):
-        self.path = path
+    def __init__ (self, dir: str = "output/", file: str = "body.dat", write: bool = True):
+        self.path = dir + file
         self.open(write)
 
     # Opens a file
@@ -32,6 +32,22 @@ class OutputFile:
     # Closes a file
     def close (self):
         self.file.close()
+
+    # Returns the name of a data file with some index
+    @staticmethod
+    def get_file_name (name: str, index: int):
+        if ".dat" in name:
+            return name.replace(".dat", "") + "_" + str(index).zfill(5) + ".dat"
+        else:
+            return name + "_" + str(index).zfill(5) + ".dat"
+
+    # Clears the output files
+    @staticmethod
+    def clear_files (dir: str = "output/"):
+        if not os.path.exists(dir):
+            os.mkdir(dir)
+        for file in os.listdir(dir):
+            os.remove(dir + file)
 
 
 # Class for writing to the initial data file

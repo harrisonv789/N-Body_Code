@@ -1,5 +1,6 @@
 # Import relevant packages
 import numpy as np
+import os
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from mpl_toolkits import mplot3d
@@ -26,16 +27,19 @@ class Plotter:
     def __init__ (self, **kwargs):
 
         # Store references to the outputs
-        self.outputs = kwargs.get("outputs", ["output.dat"])
+        self.outputs = kwargs.get("outputs", [])
+        self.dir = kwargs.get("dir", "output/")
         self.multiple = len(self.outputs) > 1
         self.analysis = kwargs.get("analysis", False) and self.multiple
-        self.output = self.outputs[0]
+
+        # If no output specified, get all the body data
+        if len(self.outputs) == 0: self.outputs = [self.dir + file for file in os.listdir(self.dir) if ".dat" in file]
 
         # Load the data
         self.load_data()
 
         # Gets the options from the output file
-        with open(self.output, "r") as file:
+        with open(self.outputs[0], "r") as file:
             self.headers = [h.strip() for h in file.readline().strip().split(" ") if h != ""]
 
         # Print the header

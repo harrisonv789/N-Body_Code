@@ -35,6 +35,13 @@ class System:
         # Create the bodies with the initial state
         for idx in range(self.n_bodies):
             state = self.model.init_state(self.radius, self.vel_vec)
+
+            # TODO REMOVE
+            if idx % 2 == 1:
+                state.x *= -1.0
+                state.v *= -1.0
+                state.a *= -1.0
+
             b = Body(self.model, state)
             self.bodies.append(b)
 

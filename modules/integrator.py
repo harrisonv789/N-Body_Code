@@ -56,15 +56,28 @@ class Integrator:
             Color.print("\nInitial conditions unchanged.", Color.WARNING)
             return
 
+        # Clear the previous files
+        OutputFile.clear_files()
+
+        # Stores the output files for each body
+        files = []
+
+        # Loops through and creates an output file for each 
+        for idx, body in enumerate(system.bodies):
+
+            # Get the file name and create the header
+            file_name = OutputFile.get_file_name(output, idx)
+            file = OutputFile(file = file_name)
+            file.header()
+
+            # Write the initial data to the file
+            file.write(time, body)
+            
+            # Add the file to the list
+            files.append(file)
+
         # Print status
         Color.print("\nPerforming Integration...", Color.WARNING)
-
-        # Create the output file and add a header
-        file = OutputFile(output)
-        file.header()
-
-        # Write the initial data to the file
-        file.write(time, system.body)
 
         # Get the next write time
         next_write_time = 0.0
@@ -75,17 +88,22 @@ class Integrator:
             # Increment the time
             time.increment()
 
+            # Determine if can write to this timestep
+            can_write: bool = False
+
+            # Calculates the next time and sets the can_write flag
+            if time.time >= next_write_time or time.steps == time.steps_max:
+                next_write_time = time.time + output_timestep
+                can_write = True
+
             # Loop through all the bodies
-            for body in system.bodies:
+            for idx, body in enumerate(system.bodies):
 
                 # Run the integrator on the bodies
                 self.update(body, time.delta)
 
-            # Check if it is time to write
-            if time.time >= next_write_time or time.steps == time.steps_max:
-                # Write the data to the output
-                file.write(time, system.body)
-                next_write_time = time.time + output_timestep
+                # Write data to file if able to write
+                if can_write: files[idx].write(time, body)           
 
             # Output the progress and flush the buffer
             if self.verbose and time.steps_max >= self.ticks and time.steps % int(time.steps_max / self.ticks) == 0:
