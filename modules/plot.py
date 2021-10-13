@@ -272,6 +272,7 @@ class Plotter:
                         if idx == 0 or not diff_axis:
                             ax.plot(data[x], data[y], marker=marker, linestyle=linestyle, markersize=2, label=label)
                         else: ax2.plot(data[x], data[y], marker=marker, linestyle=linestyle, markersize=2, label=label, color='orange')
+        
         # Get the X 
         ax.set_xlabel(self.__get_latex(x))
 
@@ -324,31 +325,33 @@ class Plotter:
             interval = int(interval) if interval > 1 else 1
 
             # Store a list of points
-            points = []
+            points = [[] for p in range(len(files))]
 
             # If 3d animation
             if _3d:
-                point, = ax.plot3D(data[x][0], data[y_plots[0]][0], data[y_plots[1]][0], marker="o", color="black")
-                points.append(point)
+                for idx, key in enumerate(files):
+                    point, = ax.plot3D(self.data[key][x][0], self.data[key][y_plots[0]][0], self.data[key][y_plots[1]][0], marker="o", color="black")
+                    points[idx].append(point)
             
             # If 2d animation
             else:
-                # Loop through the y plots
-                for y in y_plots:
-
-                    # Get the first position of the data
-                    point, = ax.plot(data[x][0], data[y][0], marker="o", color="black")
-                    points.append(point)
+                for idx, key in enumerate(files):
+                    # Loop through the y plots
+                    for y in y_plots:
+                        # Get the first position of the data
+                        point, = ax.plot(self.data[key][x][0], self.data[key][y][0], marker="o", color="black")
+                        points[idx].append(point)
 
             # Create an update with some alpha value between 0 and 1
             def update (a: float):
                 val = int(len(data[x]) * a)
-                for idx, p in enumerate(points):
-                    if _3d:
-                        p.set_data(data[x][val], data[y_plots[0]][val])
-                        p.set_3d_properties(data[y_plots[1]][val])
-                    else:   
-                        p.set_data([[data[x][val]], [data[y_plots[idx]][val]]])
+                for p_idx, key in enumerate(files):
+                    for idx, p in enumerate(points[p_idx]):
+                        if _3d:
+                            p.set_data(self.data[key][x][val], self.data[key][y_plots[0]][val])
+                            p.set_3d_properties(self.data[key][y_plots[1]][val])
+                        else:   
+                            p.set_data([[self.data[key][x][val]], [self.data[key][y_plots[idx]][val]]])
                     
 
             # Create the animation call
