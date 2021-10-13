@@ -1,5 +1,6 @@
 # Import relevant packages
 import numpy as np
+import os
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from mpl_toolkits import mplot3d
@@ -16,31 +17,81 @@ class Plotter:
 
     # Store a list of standard plots
     preset_plots = {
-        "pos":      ["pos_x",   "pos_y",                        "equal, star, grid, anim"],
-        "3d":       ["pos_x",   "pos_y, pos_z",                 "star, anim, 3d"],
-        "energy":   ["time",    "E_tot, E_kin, E_pot, E_err",   "grid"],
-        "timepos":  ["time",   "pos_x, pos_y, pos_z",           "grid"],
+        "body": {
+            "pos":      ["pos_x",   "pos_y",                        "equal, star, grid, anim, limits"],
+            "3d":       ["pos_x",   "pos_y, pos_z",                 "star, anim, 3d"],
+            "energy":   ["time",    "E_tot, E_kin, E_pot, E_err",   "grid"],
+            "timepos":  ["time",    "pos_x, pos_y, pos_z",          "grid"],
+        },
+        "system": {
+            "mom":      ["time",    "mom_x, mom_y, mom_z",          "grid"],
+            "energy":   ["time",    "E_tot, E_kin, E_pot, E_err",   "grid"],
+        }
     }
 
     # Init constructor takes in some output data file and some arguments
     def __init__ (self, **kwargs):
 
         # Store references to the outputs
-        self.outputs = kwargs.get("outputs", ["output.dat"])
+        self.outputs = kwargs.get("outputs", [])
+        self.dir = kwargs.get("dir", "output/")
         self.multiple = len(self.outputs) > 1
         self.analysis = kwargs.get("analysis", False) and self.multiple
-        self.output = self.outputs[0]
+
+        # If no output specified, get the data from system or from bodies
+        if len(self.outputs) == 0 and len(os.listdir(self.dir)) > 0:
+            # If multiple files found
+            if len(os.listdir(self.dir)) > 1:
+
+                print("\nMultiple data files detected.")
+
+                # Loop untit a valid option entered
+                while True:
+
+                    # Get the new option
+                    option = input("Plotting Data File\n\tOptions = %s(S)ystem, (B)odies%s: " \
+                        % (Color.DEFAULT, Color.RESET)).lower()
+                    
+                    # If using a system option
+                    if option == "s":
+                        self.option = "system"
+                        self.outputs = [self.dir + file for file in os.listdir(self.dir) if "system" in file]
+                        break
+
+                    # If using the body option
+                    if option == "b":
+                        self.option = "body"
+
+                        self.outputs = [self.dir + file for file in os.listdir(self.dir) if "body" in file]
+                        
+                        # Ask for the body to plot
+                        body_idx = input("Select a Body [%s%d, %d%s]: " \
+                            % (Color.DEFAULT, 0, len(self.outputs) - 1, Color.RESET)).lower()
+
+                        # Check if only one body is selected
+                        if body_idx.isdigit() and int(body_idx) < len(self.outputs):
+                            self.outputs = [self.outputs[int(body_idx)]]
+
+                        break
+
+                    # If quitting
+                    if option == "q":
+                        exit()
+
+            # Otherwise set the one file
+            else:
+                self.outputs = self.dir + os.listdir(self.dir)[0]
 
         # Load the data
         self.load_data()
 
         # Gets the options from the output file
-        with open(self.output, "r") as file:
+        with open(self.outputs[0], "r") as file:
             self.headers = [h.strip() for h in file.readline().strip().split(" ") if h != ""]
 
         # Print the header
         print("\n--------------------------------------------------")
-        print("%sPLOTTING DATA FROM %s%s" % (Color.HEADER, ", ".join(self.outputs), Color.RESET))
+        print("%sPLOTTING DATA FROM %s%s" % (Color.HEADER, ", ".join(self.outputs).replace(self.dir, ""), Color.RESET))
         print(  "--------------------------------------------------")
 
 
@@ -85,14 +136,14 @@ class Plotter:
 
             # Ask for a preset
             preset = input("\nPreset Plot\n\tOptions = %s%s%s: " \
-                % (Color.DEFAULT, ", ".join(self.preset_plots.keys()), Color.RESET)).lower()
+                % (Color.DEFAULT, ", ".join(self.preset_plots[self.option].keys()), Color.RESET)).lower()
 
             # Check for quit
             if preset == "q": break
             
             # Check if has a valid plot
-            if preset in self.preset_plots.keys():
-                previous = self.preset_plots[preset]
+            if preset in self.preset_plots[self.option].keys():
+                previous = self.preset_plots[self.option][preset]
 
             # Get the X and Y axis and check for valid
             x_axis = input("\nPlot Selection for (%sx%s) Axis\n\tPrevious = %s%s%s: " \
@@ -202,7 +253,7 @@ class Plotter:
                 ax.plot(idx, data[x][row], marker="o", linestyle=linestyle, markersize=10, label=key)
                 ax.tick_params(axis='x', which='both', bottom=False, top=False, labelbottom=False)
 
-        else:
+        elif "anim" not in args:
             # 3D graphing
             if _3d:
                 # Loop through each y plot
@@ -225,6 +276,7 @@ class Plotter:
                         if idx == 0 or not diff_axis:
                             ax.plot(data[x], data[y], marker=marker, linestyle=linestyle, markersize=2, label=label)
                         else: ax2.plot(data[x], data[y], marker=marker, linestyle=linestyle, markersize=2, label=label, color='orange')
+        
         # Get the X 
         ax.set_xlabel(self.__get_latex(x))
 
@@ -246,9 +298,70 @@ class Plotter:
             if diff_axis:
                 ax2.legend()
 
+        # Set the axis properties
+        self.set_axis_properties(ax, args, title)
+
+        # Animate the system
+        if "anim" in args:
+
+            # Set the animation speed
+            if "slow" in args:
+                interval = 300
+            elif "fast" in args:
+                interval = 30
+            else:
+                interval = 100
+
+            # Create an update with some alpha value between 0 and 1
+            def update (a: float):
+                ax.clear()
+                val = int(len(self.data[list(files)[0]][x]) * a)
+                for p_idx, key in enumerate(files):
+                    for idx, y in enumerate(y_plots):
+                        label = "%s - %s" % (y, key) if self.multiple else y
+                        x_data = self.data[key][x]
+                        y_data = self.data[key][y_plots[0]]
+                        if _3d:
+                            z_data = self.data[key][y_plots[1]]
+                            # Add the previous positions
+                            ax.plot3D(x_data[:val], y_data[:val], z_data[:val], marker=marker, linestyle=linestyle, markersize=1, label=label, alpha=0.7)
+                            # Add the current position
+                            ax.plot3D(x_data[val], y_data[val], z_data[val], marker="o", color="black")
+                        else:
+                            # Add previous positions
+                            ax.plot(x_data[:val], y_data[:val], marker=marker, linestyle=linestyle, markersize=1, label=label, alpha=0.7)
+                            # Add the current position
+                            ax.plot(x_data[val], y_data[val], marker="o", color="black")
+                
+                # Set the axis properties
+                self.set_axis_properties(ax, args, "%s Timestep: %d" % (title, val))
+
+                # Set the X and Y lable
+                ax.set_xlabel(self.__get_latex(x))
+                ax.set_ylabel(self.__get_latex(y_plots[0]))
+
+                # Get the Y and Z label
+                if _3d:
+                    ax.set_zlabel(self.__get_latex(y_plots[1]))
+
+            # Create the animation call
+            anim = FuncAnimation(fig, update, repeat=True, frames=np.linspace(0,1.0,interval, endpoint=False))
+
+        # Show the plot
+        plt.show()
+
+
+    # Set the axis properties
+    def set_axis_properties (self, ax, args, title):
+        ax.set_title(title)
+
+        # Show the legend
+        if "nolegend" not in args:
+            ax.legend()
+
         # Add the arguments
         if "equal" in args:
-            if not _3d: ax.axis('equal')
+            if not "3d" in args: ax.axis('equal')
             else:
                 world_limits = ax.get_w_lims()
                 ax.set_box_aspect((world_limits[1]-world_limits[0],world_limits[3]-world_limits[2],world_limits[5]-world_limits[4]))
@@ -258,57 +371,15 @@ class Plotter:
         if "logy" in args:
             ax.set_yscale("log")
         if "star" in args:
-            if _3d: ax.plot3D(0, 0, 0, "*", markersize=10)
-            else: ax.plot(0, 0, "*", markersize=10)
+            if "3d" in args: ax.plot3D(0, 0, 0, "*", markersize=10, color="yellow")
+            else: ax.plot(0, 0, "*", markersize=10, color="yellow")
         if "grid" in args:
             ax.grid()
 
-        # Animate the system
-        if "anim" in args:
-
-            if "slow" in args:
-                interval = 100
-            elif "fast" in args:
-                interval = 10
-            else:
-                interval = 20
-
-            # Store a list of points
-            points = []
-
-            # If 3d animation
-            if _3d:
-                point, = ax.plot3D(data[x][0], data[y_plots[0]][0], data[y_plots[1]][0], marker="o", color="black")
-                points.append(point)
-            
-            # If 2d animation
-            else:
-                # Loop through the y plots
-                for y in y_plots:
-
-                    # Get the first position of the data
-                    point, = ax.plot(data[x][0], data[y][0], marker="o", color="black")
-                    points.append(point)
-
-            # Create an update with some alpha value between 0 and 1
-            def update (a: float):
-                val = int(len(data[x]) * a)
-                for idx, p in enumerate(points):
-                    if _3d:
-                        p.set_data(data[x][val], data[y_plots[0]][val])
-                        p.set_3d_properties(data[y_plots[1]][val])
-                    else:   
-                        p.set_data([[data[x][val]], [data[y_plots[idx]][val]]])
-                    
-
-            # Create the animation call
-            anim = FuncAnimation(fig, update, interval=interval, repeat=True, frames=np.linspace(0,1.0,100, endpoint=False))
-
-        # Add a title
-        plt.title(title)
-
-        # Show the plot
-        plt.show()
+        # Set the range of limits
+        if "limits" in args:
+            ax.set_xlim(-1.5, 1.5)
+            ax.set_ylim(-1.5, 1.5)
 
 
 

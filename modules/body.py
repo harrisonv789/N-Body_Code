@@ -52,7 +52,6 @@ class Body:
         self.model = model
         self.state = state
         self.mass = mass
-        self.reset()
 
     # Resets the data
     def reset (self):
@@ -70,7 +69,7 @@ class Body:
 
     # Updates the momentum based on the calculation
     def update_momentum (self):
-        self.L = self.position.cross(self.velocity)
+        self.L = self.position.cross(self.velocity) * self.mass
 
     # Updates the radius
     def update_radius (self):
@@ -83,13 +82,15 @@ class Body:
 
     # Updates the Energy based on the calculation
     def update_energy (self):
-        self.KE = 0.5 * self.velocity.dot(self.velocity)
-        self.PE = self.model.potential(self.position)
+        self.KE = 0.5 * self.mass * self.velocity.dot(self.velocity)
         self.E = self.KE + self.PE
 
     # Updaes the Energy error based on the energy
     def update_energy_error (self):
-        self.E_error = abs((self.init_energy - self.E) / self.init_energy)
+        self.E_error = abs((self.init_energy - self.E) / self.init_energy) if self.init_energy != 0.0 else 0.0
+
+
+
 
     ##########################################################################
     # PROPERTY FUNCTIONS
@@ -135,6 +136,19 @@ class Body:
     def potential_energy (self) -> float64:
         return self.PE
 
+    # Defines the list of properties
+    PROPERTIES = ["time", "pos_x", "pos_y", "pos_z", "vel_x", "vel_y", "vel_z", \
+        "acc_x", "acc_y", "acc_z", "radius", "theta", "mom_x", "mom_y", "mom_z", "mass", \
+        "E_tot", "E_kin", "E_pot", "E_err"]
+
+    # Returns the headers of the body file
+    @staticmethod
+    def get_header () -> str:
+        output = "   "
+        for p in Body.PROPERTIES: output += p + "    "
+        return output[:-4] + "\n"
+
+
 
 
     ##########################################################################
@@ -149,16 +163,3 @@ class Body:
     def output (self) -> str:
         return "%s\t%8.4f\t%8.4f\t%s\t%8.4f\t%8.4f\t%8.4f\t%8.4f\t%8.4f" % \
         (self.state.output(), self.r, self.theta, self.L.output(), self.mass, self.E, self.KE, self.PE, self.E_error)
-
-    # Defines the list of parameters
-    PARAMETERS = ["time", "pos_x", "pos_y", "pos_z", "vel_x", "vel_y", "vel_z", \
-        "acc_x", "acc_y", "acc_z", "radius", "theta", "mom_x", "mom_y", "mom_z", "mass", \
-        "E_tot", "E_kin", "E_pot", "E_err"]
-
-    # Returns the headers of the body file
-    @staticmethod
-    def get_header () -> str:
-        output = "   "
-        for p in Body.PARAMETERS:
-            output += p + "    "
-        return output[:-4] + "\n"
