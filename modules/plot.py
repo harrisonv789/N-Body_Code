@@ -18,7 +18,7 @@ class Plotter:
     # Store a list of standard plots
     preset_plots = {
         "body": {
-            "pos":      ["pos_x",   "pos_y",                        "equal, star, grid, anim"],
+            "pos":      ["pos_x",   "pos_y",                        "equal, star, grid, anim, limits"],
             "3d":       ["pos_x",   "pos_y, pos_z",                 "star, anim, 3d"],
             "energy":   ["time",    "E_tot, E_kin, E_pot, E_err",   "grid"],
             "timepos":  ["time",    "pos_x, pos_y, pos_z",          "grid"],
@@ -324,18 +324,25 @@ class Plotter:
                         if _3d:
                             z_data = self.data[key][y_plots[1]]
                             # Add the previous positions
-                            ax.plot3D(x_data[:val], y_data[:val], z_data[:val], marker=marker, linestyle=linestyle, markersize=1, label=label)
+                            ax.plot3D(x_data[:val], y_data[:val], z_data[:val], marker=marker, linestyle=linestyle, markersize=1, label=label, alpha=0.7)
                             # Add the current position
                             ax.plot3D(x_data[val], y_data[val], z_data[val], marker="o", color="black")
                         else:
                             # Add previous positions
-                            ax.plot(x_data[:val], y_data[:val], marker=marker, linestyle=linestyle, markersize=1, label=label)
+                            ax.plot(x_data[:val], y_data[:val], marker=marker, linestyle=linestyle, markersize=1, label=label, alpha=0.7)
                             # Add the current position
                             ax.plot(x_data[val], y_data[val], marker="o", color="black")
                 
                 # Set the axis properties
                 self.set_axis_properties(ax, args, "%s Timestep: %d" % (title, val))
 
+                # Set the X and Y lable
+                ax.set_xlabel(self.__get_latex(x))
+                ax.set_ylabel(self.__get_latex(y_plots[0]))
+
+                # Get the Y and Z label
+                if _3d:
+                    ax.set_zlabel(self.__get_latex(y_plots[1]))
 
             # Create the animation call
             anim = FuncAnimation(fig, update, repeat=True, frames=np.linspace(0,1.0,interval, endpoint=False))
@@ -345,9 +352,12 @@ class Plotter:
 
 
     # Set the axis properties
-    def set_axis_properties (self, ax, args, title, x_range=None, y_range=None):
+    def set_axis_properties (self, ax, args, title):
         ax.set_title(title)
-        ax.legend()
+
+        # Show the legend
+        if "nolegend" not in args:
+            ax.legend()
 
         # Add the arguments
         if "equal" in args:
@@ -361,16 +371,15 @@ class Plotter:
         if "logy" in args:
             ax.set_yscale("log")
         if "star" in args:
-            if "3d" in args: ax.plot3D(0, 0, 0, "*", markersize=10)
-            else: ax.plot(0, 0, "*", markersize=10)
+            if "3d" in args: ax.plot3D(0, 0, 0, "*", markersize=10, color="yellow")
+            else: ax.plot(0, 0, "*", markersize=10, color="yellow")
         if "grid" in args:
             ax.grid()
 
         # Set the range of limits
-        if x_range:
-            ax.set_xlim(x_range)
-        if y_range:
-            ax.set_ylim(y_range)
+        if "limits" in args:
+            ax.set_xlim(-1.5, 1.5)
+            ax.set_ylim(-1.5, 1.5)
 
 
 

@@ -17,7 +17,7 @@ from modules.model import *
 model_name = "kepler"  # The name of the model
 dt = 0.001                  # The step size
 output_dt = 0.01            # The output timestep to save data
-tmax = 20 * PI               # The max timestep
+tmax = 2 * PI               # The max timestep
 output = "body.dat"       # The output filename to store the data
 use_analysis = False         # A flag for using the analysis tool
 plot_data = True            # A flag for plotting data
@@ -62,11 +62,12 @@ else:
 # Create the system and the time
 system = System(
     model, 
-    n_bodies = 3, 
+    n_bodies = 2, 
     radius = 1.0, 
     vel_vec = Vector(0, 1, 0), 
     use_background = False,
-    IC = "stable_triple"
+    masses = [2, 1],
+    IC = "two_body"
 )
 time = Time(0, tmax, dt)
 

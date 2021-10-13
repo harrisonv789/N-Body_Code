@@ -12,7 +12,7 @@ class Model:
     M = 1.0
 
     # The circular velocity multiplier
-    v_mul   = None
+    v_mul = 1.0
 
 
     ##########################################################################

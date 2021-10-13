@@ -204,7 +204,8 @@ class System:
         self.E_pot = 0.0
         for body in self.bodies:
             self.E_pot += body.PE * body.mass
-        return self.E_pot / 2.0
+        self.E_pot /= 2.0
+        return self.E_pot
 
 
     # Calculates the current system total energy
