@@ -106,7 +106,32 @@ class System:
         # Return the potential over the mass
         return pot / body.mass
 
-    
+
+    # Returns the output for file
+    def output (self) -> str:
+        return "%8.4f\t%s\t%8.4f\t%8.4f\t%8.4f\t%8.4f" % \
+        (self.mass, self.get_system_L().output(), self.get_system_energy(), self.get_system_KE(), self.get_system_PE(), self.get_system_E_error())
+
+    # Defines the list of parameters
+    PARAMETERS = ["time", "mass", "mom_x", "mom_y", "mom_z", "E_tot", "E_kin", "E_pot", "E_err"]
+
+    # Returns the headers of the body file
+    @staticmethod
+    def get_header () -> str:
+        output = "   "
+        for p in System.PARAMETERS:
+            output += p + "    "
+        return output[:-4] + "\n"
+
+
+    # Calculates the current system total angular momentum
+    def get_system_L (self) -> Vector:
+        L = Vector()
+        for body in self.bodies:
+            L += body.L
+        return L
+
+
     # Calculates the current system total potential energy
     def get_system_PE (self) -> float64:
         pot = 0.0
@@ -126,6 +151,11 @@ class System:
     # Calculates the current system total energy
     def get_system_energy (self) -> float64:
         return self.get_system_KE() + self.get_system_PE()
+
+
+    # Calculates the current system total energy error
+    def get_system_E_error (self) -> float64:
+        return 0.0
 
 
     # Sets the intial values of the bodies

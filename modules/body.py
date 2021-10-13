@@ -69,7 +69,7 @@ class Body:
 
     # Updates the momentum based on the calculation
     def update_momentum (self):
-        self.L = self.position.cross(self.velocity)
+        self.L = self.position.cross(self.velocity) * self.mass
 
     # Updates the radius
     def update_radius (self):

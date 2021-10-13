@@ -58,7 +58,7 @@ class Integrator:
             return
 
         # Clear the previous files
-        OutputFile.clear_files()
+        BodyFile.clear_files()
 
         # Stores the output files for each body
         files = []
@@ -67,8 +67,8 @@ class Integrator:
         for idx, body in enumerate(system.bodies):
 
             # Get the file name and create the header
-            file_name = OutputFile.get_file_name(output, idx)
-            file = OutputFile(file = file_name)
+            file_name = BodyFile.get_file_name(output, idx)
+            file = BodyFile(file = file_name)
             file.header()
 
             # Write the initial data to the file
@@ -76,6 +76,11 @@ class Integrator:
             
             # Add the file to the list
             files.append(file)
+
+        # Creates system file to store system data
+        sys_file = SystemFile()
+        sys_file.header()
+        sys_file.write(time, self.system)
 
         # Print status
         Color.print("\nPerforming Integration...", Color.WARNING)
@@ -104,8 +109,10 @@ class Integrator:
                 self.update(body, idx, time.delta)
 
                 # Write data to file if able to write
-                if can_write: 
-                    files[idx].write(time, body)           
+                if can_write: files[idx].write(time, body)   
+                    
+            # Update the system data file
+            if can_write: sys_file.write(time, self.system)        
 
             # Output the progress and flush the buffer
             if self.verbose and time.steps_max >= self.ticks and time.steps % int(time.steps_max / self.ticks) == 0:
