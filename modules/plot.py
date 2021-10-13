@@ -294,35 +294,19 @@ class Plotter:
             if diff_axis:
                 ax2.legend()
 
-        # Add the arguments
-        if "equal" in args:
-            if not _3d: ax.axis('equal')
-            else:
-                world_limits = ax.get_w_lims()
-                ax.set_box_aspect((world_limits[1]-world_limits[0],world_limits[3]-world_limits[2],world_limits[5]-world_limits[4]))
-
-        if "logx" in args:
-            ax.set_xscale("log")
-        if "logy" in args:
-            ax.set_yscale("log")
-        if "star" in args:
-            if _3d: ax.plot3D(0, 0, 0, "*", markersize=10)
-            else: ax.plot(0, 0, "*", markersize=10)
-        if "grid" in args:
-            ax.grid()
+        # Set the axis properties
+        self.set_axis_properties(ax, args, title)
 
         # Animate the system
         if "anim" in args:
 
             # Set the animation speed
-            interval = float(1000.0 / len(self.data[list(files)[0]][x]))
             if "slow" in args:
-                interval *= 3.0
+                interval = 300
             elif "fast" in args:
-                interval *= 0.3
+                interval = 30
             else:
-                interval *= 1.0
-            interval = int(interval) if interval > 1 else 1
+                interval = 100
 
             # Create an update with some alpha value between 0 and 1
             def update (a: float):
@@ -344,15 +328,45 @@ class Plotter:
                             ax.plot(x_data[:val], y_data[:val], marker=marker, linestyle=linestyle, markersize=1, label=label)
                             # Add the current position
                             ax.plot(x_data[val], y_data[val], marker="o", color="black")
-                    
-            # Create the animation call
-            anim = FuncAnimation(fig, update, interval=interval, repeat=True, frames=np.linspace(0,1.0,100, endpoint=False))
+                
+                # Set the axis properties
+                self.set_axis_properties(ax, args, "%s Timestep: %d" % (title, val))
 
-        # Add a title
-        plt.title(title)
+
+            # Create the animation call
+            anim = FuncAnimation(fig, update, repeat=True, frames=np.linspace(0,1.0,interval, endpoint=False))
 
         # Show the plot
         plt.show()
+
+
+    # Set the axis properties
+    def set_axis_properties (self, ax, args, title, x_range=None, y_range=None):
+        ax.set_title(title)
+        ax.legend()
+
+        # Add the arguments
+        if "equal" in args:
+            if not "3d" in args: ax.axis('equal')
+            else:
+                world_limits = ax.get_w_lims()
+                ax.set_box_aspect((world_limits[1]-world_limits[0],world_limits[3]-world_limits[2],world_limits[5]-world_limits[4]))
+
+        if "logx" in args:
+            ax.set_xscale("log")
+        if "logy" in args:
+            ax.set_yscale("log")
+        if "star" in args:
+            if "3d" in args: ax.plot3D(0, 0, 0, "*", markersize=10)
+            else: ax.plot(0, 0, "*", markersize=10)
+        if "grid" in args:
+            ax.grid()
+
+        # Set the range of limits
+        if x_range:
+            ax.set_xlim(x_range)
+        if y_range:
+            ax.set_ylim(y_range)
 
 
 
