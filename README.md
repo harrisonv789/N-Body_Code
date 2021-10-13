@@ -11,6 +11,18 @@ To install the repository, use the *git* command line:
 ```
 git clone https://github.com/harrisonv789/N-body_code.git
 cd N-body_code
+```
+
+If running the **Assignment 2** code, make sure to check out the correct branch:
+
+```
+git checkout ass-2 --
+git pull
+```
+
+To run the **Lab 11** code, check out the following branch:
+
+```
 git checkout lab-11 --
 git pull
 ```
