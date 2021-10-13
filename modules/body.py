@@ -52,7 +52,6 @@ class Body:
         self.model = model
         self.state = state
         self.mass = mass
-        self.reset()
 
     # Resets the data
     def reset (self):
@@ -84,12 +83,11 @@ class Body:
     # Updates the Energy based on the calculation
     def update_energy (self):
         self.KE = 0.5 * self.velocity.dot(self.velocity)
-        self.PE = self.model.potential(self.position)
         self.E = self.KE + self.PE
 
     # Updaes the Energy error based on the energy
     def update_energy_error (self):
-        self.E_error = abs((self.init_energy - self.E) / self.init_energy)
+        self.E_error = abs((self.init_energy - self.E) / self.init_energy) if self.init_energy != 0.0 else 0.0
 
     ##########################################################################
     # PROPERTY FUNCTIONS

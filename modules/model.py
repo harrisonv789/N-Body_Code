@@ -75,9 +75,6 @@ class KeplerModel (Model):
     # Eccentricity of the orbits
     e       = 0.0
 
-    # Angle of the orbits (TODO remove)
-    theta   = 0.0
-
 
     ##########################################################################
     # Model Equations
@@ -99,7 +96,7 @@ class KeplerModel (Model):
         a = Vector()
 
         # Calculate the acceleration
-        a = position * (-1.0 / r3)
+        a = position * (-1.0 / r3) * self.M * G
 
         # Return the acceleration
         return a
@@ -110,13 +107,13 @@ class KeplerModel (Model):
 
     # Calculates the starting position at some radius
     def initial_position (self, radius: np.float64) -> Vector:
-        x = (self.a * (1 - self.e ** 2)) / (1 + self.e * np.cos(self.theta)) * radius 
+        x = self.a * (1 + self.e)
         return Vector(x, 0, 0)
 
     # Calculates the starting velocity from some position
     def initial_velocity (self, position: Vector) -> np.float64:
-        y = np.sqrt(1.0 / self.a) * np.sqrt((1 + self.e) / (1 - self.e))
-        return y
+        vel = np.sqrt(self.a * (1 - (self.e ** 2)) * self.M) / (self.a * (1 + self.e)) * self.v_mul
+        return vel
 
     ##########################################################################
 

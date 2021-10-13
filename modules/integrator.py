@@ -36,8 +36,9 @@ class Integrator:
 
     # Updates a body with new properties
     # This function must be overriden by the integrator class
-    def update (self, body: Body, dt: float64):
+    def update (self, body: Body, body_idx: int, dt: float64):
         pass
+
 
 
     # Executes the integration with a system
@@ -80,7 +81,7 @@ class Integrator:
         Color.print("\nPerforming Integration...", Color.WARNING)
 
         # Get the next write time
-        next_write_time = 0.0
+        next_write_time = output_timestep - time.delta
 
         # Loop while the time is less than maximum
         while time.running:
@@ -93,14 +94,14 @@ class Integrator:
 
             # Calculates the next time and sets the can_write flag
             if time.time >= next_write_time or time.steps == time.steps_max:
-                next_write_time = time.time + output_timestep
+                next_write_time += output_timestep
                 can_write = True
 
             # Loop through all the bodies
             for idx, body in enumerate(system.bodies):
 
                 # Run the integrator on the bodies
-                self.update(body, time.delta)
+                self.update(body, idx, time.delta)
 
                 # Write data to file if able to write
                 if can_write: files[idx].write(time, body)           
@@ -133,17 +134,21 @@ class LeapFrogIntegrator (Integrator):
 
 
     # Takes in an Input position, Velocity, Accleration and Delta Time
-    def update(self, body: Body, dt: float):
+    def update(self, body: Body, body_idx: int, dt: float):
 
         # Set up the initial velocity
         body.state.v += 0.5 * dt * body.state.a
 
         # Calculate the new parameters
         body.state.x += dt * body.state.v
-        body.state.a = self.system.model.acceleration(body.state.x)
+        body.state.a = self.system.get_acceleration(body_idx)
         body.state.v += 0.5 * dt * body.state.a
+
+        # Update the potential
+        body.PE = self.system.get_potential(body_idx)
 
         # Update the body
         body.update()
+        
 
 
