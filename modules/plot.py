@@ -74,6 +74,10 @@ class Plotter:
 
                         break
 
+                    # If quitting
+                    if option == "q":
+                        exit()
+
             # Otherwise set the one file
             else:
                 self.outputs = self.dir + os.listdir(self.dir)[0]

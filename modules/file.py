@@ -9,11 +9,11 @@ from .system import System
 class BodyFile:
 
     # Constructor to initialise a file with some path
-    def __init__ (self, dir: str = "output/", file: str = "body.dat", write: bool = True):
-        self.path = dir + file
+    def __init__ (self, dir: str = "output/", name: str = "body.dat", write: bool = True):
+        self.path = dir + name
         self.open(write)
 
-    # Opens a file
+    # Opens the file
     def open (self, write: bool):
         flag = "w" if write else "r"
         self.file = open(self.path, flag)
