@@ -17,10 +17,16 @@ class Plotter:
 
     # Store a list of standard plots
     preset_plots = {
-        "pos":      ["pos_x",   "pos_y",                        "equal, star, grid, anim"],
-        "3d":       ["pos_x",   "pos_y, pos_z",                 "star, anim, 3d"],
-        "energy":   ["time",    "E_tot, E_kin, E_pot, E_err",   "grid"],
-        "timepos":  ["time",   "pos_x, pos_y, pos_z",           "grid"],
+        "body": {
+            "pos":      ["pos_x",   "pos_y",                        "equal, star, grid, anim"],
+            "3d":       ["pos_x",   "pos_y, pos_z",                 "star, anim, 3d"],
+            "energy":   ["time",    "E_tot, E_kin, E_pot, E_err",   "grid"],
+            "timepos":  ["time",    "pos_x, pos_y, pos_z",          "grid"],
+        },
+        "system": {
+            "mom":      ["time",    "mom_x, mom_y, mom_z",          "grid"],
+            "energy":   ["time",    "E_tot, E_kin, E_pot, E_err",   "grid"],
+        }
     }
 
     # Init constructor takes in some output data file and some arguments
@@ -32,8 +38,45 @@ class Plotter:
         self.multiple = len(self.outputs) > 1
         self.analysis = kwargs.get("analysis", False) and self.multiple
 
-        # If no output specified, get all the body data
-        if len(self.outputs) == 0: self.outputs = [self.dir + file for file in os.listdir(self.dir) if ".dat" in file]
+        # If no output specified, get the data from system or from bodies
+        if len(self.outputs) == 0 and len(os.listdir(self.dir)) > 0:
+            # If multiple files found
+            if len(os.listdir(self.dir)) > 1:
+
+                print("\nMultiple data files detected.")
+
+                # Loop untit a valid option entered
+                while True:
+
+                    # Get the new option
+                    option = input("Plotting Data File\n\tOptions = %s(S)ystem, (B)odies%s: " \
+                        % (Color.DEFAULT, Color.RESET)).lower()
+                    
+                    # If using a system option
+                    if option == "s":
+                        self.option = "system"
+                        self.outputs = [self.dir + file for file in os.listdir(self.dir) if "system" in file]
+                        break
+
+                    # If using the body option
+                    if option == "b":
+                        self.option = "body"
+
+                        self.outputs = [self.dir + file for file in os.listdir(self.dir) if "body" in file]
+                        
+                        # Ask for the body to plot
+                        body_idx = input("Select a Body [%s%d, %d%s]: " \
+                            % (Color.DEFAULT, 0, len(self.outputs) - 1, Color.RESET)).lower()
+
+                        # Check if only one body is selected
+                        if body_idx.isdigit() and int(body_idx) < len(self.outputs):
+                            self.outputs = [self.outputs[int(body_idx)]]
+
+                        break
+
+            # Otherwise set the one file
+            else:
+                self.outputs = self.dir + os.listdir(self.dir)[0]
 
         # Load the data
         self.load_data()
@@ -44,7 +87,7 @@ class Plotter:
 
         # Print the header
         print("\n--------------------------------------------------")
-        print("%sPLOTTING DATA FROM %s%s" % (Color.HEADER, ", ".join(self.outputs), Color.RESET))
+        print("%sPLOTTING DATA FROM %s%s" % (Color.HEADER, ", ".join(self.outputs).replace(self.dir, ""), Color.RESET))
         print(  "--------------------------------------------------")
 
 
@@ -89,14 +132,14 @@ class Plotter:
 
             # Ask for a preset
             preset = input("\nPreset Plot\n\tOptions = %s%s%s: " \
-                % (Color.DEFAULT, ", ".join(self.preset_plots.keys()), Color.RESET)).lower()
+                % (Color.DEFAULT, ", ".join(self.preset_plots[self.option].keys()), Color.RESET)).lower()
 
             # Check for quit
             if preset == "q": break
             
             # Check if has a valid plot
-            if preset in self.preset_plots.keys():
-                previous = self.preset_plots[preset]
+            if preset in self.preset_plots[self.option].keys():
+                previous = self.preset_plots[self.option][preset]
 
             # Get the X and Y axis and check for valid
             x_axis = input("\nPlot Selection for (%sx%s) Axis\n\tPrevious = %s%s%s: " \
