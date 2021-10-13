@@ -91,6 +91,7 @@ plotter.plot(
 # Reset the system
 system.model.e = 0.9
 system.reset()
+time.delta = 0.00002
 
 # Execute the solution again
 integrator.execute(system, time, output, output_timestep = output_dt)
