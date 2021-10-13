@@ -82,7 +82,7 @@ class Body:
 
     # Updates the Energy based on the calculation
     def update_energy (self):
-        self.KE = 0.5 * self.velocity.dot(self.velocity)
+        self.KE = 0.5 * self.mass * self.velocity.dot(self.velocity)
         self.E = self.KE + self.PE
 
     # Updaes the Energy error based on the energy

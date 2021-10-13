@@ -104,7 +104,8 @@ class Integrator:
                 self.update(body, idx, time.delta)
 
                 # Write data to file if able to write
-                if can_write: files[idx].write(time, body)           
+                if can_write: 
+                    files[idx].write(time, body)           
 
             # Output the progress and flush the buffer
             if self.verbose and time.steps_max >= self.ticks and time.steps % int(time.steps_max / self.ticks) == 0:

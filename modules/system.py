@@ -106,6 +106,27 @@ class System:
         # Return the potential over the mass
         return pot / body.mass
 
+    
+    # Calculates the current system total potential energy
+    def get_system_PE (self) -> float64:
+        pot = 0.0
+        for body in self.bodies:
+            pot += body.PE * body.mass
+        return pot / 2.0
+
+    
+    # Calculates the current system total kinetic energy
+    def get_system_KE (self) -> float64:
+        kin = 0.0
+        for body in self.bodies:
+            kin += body.KE
+        return kin
+
+
+    # Calculates the current system total energy
+    def get_system_energy (self) -> float64:
+        return self.get_system_KE() + self.get_system_PE()
+
 
     # Sets the intial values of the bodies
     def get_initial (self, idx: int) -> State:
