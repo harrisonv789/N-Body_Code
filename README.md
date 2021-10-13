@@ -30,5 +30,5 @@ To run the N-body code, run the following line inside the project directory:
 To run the Lab 11 code for each of the questions, run the following code:
 ```
 cd lab-11
-python3 q1.py
+python3 q4.py
 ```
