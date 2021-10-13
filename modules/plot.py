@@ -249,7 +249,7 @@ class Plotter:
                 ax.plot(idx, data[x][row], marker="o", linestyle=linestyle, markersize=10, label=key)
                 ax.tick_params(axis='x', which='both', bottom=False, top=False, labelbottom=False)
 
-        else:
+        elif "anim" not in args:
             # 3D graphing
             if _3d:
                 # Loop through each y plot
@@ -315,7 +315,7 @@ class Plotter:
         if "anim" in args:
 
             # Set the animation speed
-            interval = float(1000.0 / len(data[x]))
+            interval = float(1000.0 / len(self.data[list(files)[0]][x]))
             if "slow" in args:
                 interval *= 3.0
             elif "fast" in args:
@@ -324,36 +324,27 @@ class Plotter:
                 interval *= 1.0
             interval = int(interval) if interval > 1 else 1
 
-            # Store a list of points
-            points = [[] for p in range(len(files))]
-
-            # If 3d animation
-            if _3d:
-                for idx, key in enumerate(files):
-                    point, = ax.plot3D(self.data[key][x][0], self.data[key][y_plots[0]][0], self.data[key][y_plots[1]][0], marker="o", color="black")
-                    points[idx].append(point)
-            
-            # If 2d animation
-            else:
-                for idx, key in enumerate(files):
-                    # Loop through the y plots
-                    for y in y_plots:
-                        # Get the first position of the data
-                        point, = ax.plot(self.data[key][x][0], self.data[key][y][0], marker="o", color="black")
-                        points[idx].append(point)
-
             # Create an update with some alpha value between 0 and 1
             def update (a: float):
-                val = int(len(data[x]) * a)
+                ax.clear()
+                val = int(len(self.data[list(files)[0]][x]) * a)
                 for p_idx, key in enumerate(files):
-                    for idx, p in enumerate(points[p_idx]):
+                    for idx, y in enumerate(y_plots):
+                        label = "%s - %s" % (y, key) if self.multiple else y
+                        x_data = self.data[key][x]
+                        y_data = self.data[key][y_plots[0]]
                         if _3d:
-                            p.set_data(self.data[key][x][val], self.data[key][y_plots[0]][val])
-                            p.set_3d_properties(self.data[key][y_plots[1]][val])
-                        else:   
-                            p.set_data([[self.data[key][x][val]], [self.data[key][y_plots[idx]][val]]])
+                            z_data = self.data[key][y_plots[1]]
+                            # Add the previous positions
+                            ax.plot3D(x_data[:val], y_data[:val], z_data[:val], marker=marker, linestyle=linestyle, markersize=1, label=label)
+                            # Add the current position
+                            ax.plot3D(x_data[val], y_data[val], z_data[val], marker="o", color="black")
+                        else:
+                            # Add previous positions
+                            ax.plot(x_data[:val], y_data[:val], marker=marker, linestyle=linestyle, markersize=1, label=label)
+                            # Add the current position
+                            ax.plot(x_data[val], y_data[val], marker="o", color="black")
                     
-
             # Create the animation call
             anim = FuncAnimation(fig, update, interval=interval, repeat=True, frames=np.linspace(0,1.0,100, endpoint=False))
 

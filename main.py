@@ -15,9 +15,9 @@ from modules.model import *
 
 # Simulation parameters
 model_name = "kepler"  # The name of the model
-dt = 0.0001                  # The step size
+dt = 0.001                  # The step size
 output_dt = 0.01            # The output timestep to save data
-tmax = 0.500               # The max timestep
+tmax = 2 * PI               # The max timestep
 output = "body.dat"       # The output filename to store the data
 use_analysis = False         # A flag for using the analysis tool
 plot_data = True            # A flag for plotting data
@@ -32,7 +32,7 @@ plot_data = True            # A flag for plotting data
 if model_name.lower() == "kepler":
     model = KeplerModel(
         a       = 1.0, 
-        e       = 0.7,
+        e       = 0.0,
         v_mul   = 1.0
     )
 
@@ -81,7 +81,7 @@ integrator.execute(system, time, output, output_timestep = output_dt)
 
 # If using the analysis tool
 if use_analysis:
-    analysis = Analysis("output_00000.dat", True)
+    analysis = Analysis("body_00000.dat", True)
     analysis.output()
 
 
