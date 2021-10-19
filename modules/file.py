@@ -6,10 +6,10 @@ from .system import System
 from .system import Cluster
 
 
-# Class for writing body data to an output file
-class BodyFile:
+# Default class for writing to an output
+class File:
 
-    # Constructor to initialise a file with some path
+    # Initialises the file
     def __init__ (self, dir: str = "output/", name: str = "body.dat", write: bool = True):
         self.path = dir + name
         self.open(write)
@@ -18,6 +18,38 @@ class BodyFile:
     def open (self, write: bool):
         flag = "w" if write else "r"
         self.file = open(self.path, flag)
+
+    # Closes a file
+    def close (self):
+        self.file.close()
+
+    # Clears the output files
+    @staticmethod
+    def clear_files (dir: str = "output/"):
+        if not os.path.exists(dir):
+            os.mkdir(dir)
+        for file in os.listdir(dir):
+            os.remove(dir + file)
+
+
+    # Returns the name of a data file with some index
+    @staticmethod
+    def get_file_name (name: str, index: int):
+        if ".dat" in name:
+            return name.replace(".dat", "") + "_" + str(index).zfill(5) + ".dat"
+        else:
+            return name + "_" + str(index).zfill(5) + ".dat"
+
+
+
+
+# Class for writing body data to an output file
+class BodyFile (File):
+
+    # Constructor to initialise a file with some path
+    def __init__ (self, dir: str = "output/", name: str = "body.dat", write: bool = True):
+        super().__init__(dir, name, write)
+    
 
     # Writes a header
     # Option to write a custom header
@@ -31,39 +63,15 @@ class BodyFile:
     def write (self, time: Time, body: Body):
         self.file.write("%8.4f\t%s\n" % (time(), body.output()))
 
-    # Closes a file
-    def close (self):
-        self.file.close()
 
-    # Returns the name of a data file with some index
-    @staticmethod
-    def get_file_name (name: str, index: int):
-        if ".dat" in name:
-            return name.replace(".dat", "") + "_" + str(index).zfill(5) + ".dat"
-        else:
-            return name + "_" + str(index).zfill(5) + ".dat"
-
-    # Clears the output files
-    @staticmethod
-    def clear_files (dir: str = "output/"):
-        if not os.path.exists(dir):
-            os.mkdir(dir)
-        for file in os.listdir(dir):
-            os.remove(dir + file)
 
 
 # Class for storing data on the cluster
-class ClusterFile:
+class ClusterFile (File):
 
     # Constructor to initialise a file with some path
     def __init__ (self, dir: str = "output/", name: str = "cluster.dat", write: bool = True):
-        self.path = dir + name
-        self.open(write)
-
-    # Opens the file
-    def open (self, write: bool):
-        flag = "w" if write else "r"
-        self.file = open(self.path, flag)
+        super().__init__(dir, name, write)
 
     # Writes a header
     # Option to write a custom header
@@ -77,40 +85,18 @@ class ClusterFile:
     def write (self, time: Time, cluster: Cluster):
         self.file.write("%8.4f\t%s\n" % (time(), cluster.output()))
 
-    # Closes a file
-    def close (self):
-        self.file.close()
+    
 
-    # Returns the name of a data file with some index
-    @staticmethod
-    def get_file_name (name: str, index: int):
-        if ".dat" in name:
-            return name.replace(".dat", "") + "_" + str(index).zfill(5) + ".dat"
-        else:
-            return name + "_" + str(index).zfill(5) + ".dat"
-
-    # Clears the output files
-    @staticmethod
-    def clear_files (dir: str = "output/"):
-        if not os.path.exists(dir):
-            os.mkdir(dir)
-        for file in os.listdir(dir):
-            os.remove(dir + file)
+    
 
 
 
 # Class for storing data on the whole system
-class SystemFile:
+class SystemFile (File):
 
     # Intialise the file
-    def __init__ (self, dir: str = "output/", file: str = "system.dat", write: bool = True):
-        self.path = dir + file
-        self.open(write)
-
-    # Opens a file
-    def open (self, write: bool):
-        flag = "w" if write else "r"
-        self.file = open(self.path, flag)
+    def __init__ (self, dir: str = "output/", name: str = "system.dat", write: bool = True):
+        super().__init__(dir, name, write)
 
     # Writes a header
     # Option to write a custom header
@@ -124,9 +110,6 @@ class SystemFile:
     def write (self, time: Time, system: System):
         self.file.write("%8.4f\t%s\n" % (time(), system.output()))
 
-    # Closes a file
-    def close (self):
-        self.file.close()
 
 
 

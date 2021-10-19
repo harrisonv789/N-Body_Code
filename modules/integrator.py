@@ -58,7 +58,7 @@ class Integrator:
             return
 
         # Clear the previous files
-        BodyFile.clear_files()
+        File.clear_files()
 
         # Stores the output files for each body
         files = []
@@ -67,7 +67,7 @@ class Integrator:
         for idx, body in enumerate(system.bodies):
 
             # Get the file name and create the header
-            file_name = BodyFile.get_file_name(output, idx)
+            file_name = File.get_file_name(output, idx)
             file = BodyFile(name = file_name)
             file.header()
 
@@ -84,7 +84,7 @@ class Integrator:
         for idx, cluster in enumerate(system.clusters):
 
             # Get the file name and create the header
-            file_name = ClusterFile.get_file_name("cluster", idx)
+            file_name = File.get_file_name("cluster", idx)
             file = ClusterFile(name = file_name)
             file.header()
 
