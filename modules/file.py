@@ -3,6 +3,7 @@ from .body import Body
 from .time import Time
 from .model import Model
 from .system import System
+from .system import Cluster
 
 
 # Class for writing body data to an output file
@@ -51,7 +52,9 @@ class BodyFile:
             os.remove(dir + file)
 
 
-# Calss for storing data on the whole system
+
+
+# Class for storing data on the whole system
 class SystemFile:
 
     # Intialise the file
@@ -87,10 +90,10 @@ class InitialFile:
 
     # Static function to write to a file
     @staticmethod
-    def write (time: Time, model: Model):
+    def write (time: Time, system: System):
 
         # Create save lin line
-        save = "%s\n%s" % (str(time), str(model.__dict__))
+        save = "%s\n%s" % (str(time), [str(cluster.model.__dict__) for cluster in system.clusters])
 
         # Check to see if the file is the same
         if os.path.isfile("initial.dat"):

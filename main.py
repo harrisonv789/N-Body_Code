@@ -2,6 +2,7 @@
 
 # Import all needed packages
 from modules.time import Time
+from modules.cluster import Cluster
 from modules.system import System
 from modules.integrator import *
 from modules.analysis import Analysis
@@ -59,8 +60,8 @@ else:
     raise Exception("Invalid model name used.")
 
 
-# Create the system and the time
-system = System(
+# Create a cluster
+cluster = Cluster(
     model, 
     n_bodies = 2, 
     radius = 1.0, 
@@ -69,6 +70,16 @@ system = System(
     masses = [2, 1],
     IC = "two_body"
 )
+
+# Create an array of clusters
+clusters = [cluster]
+
+# Create the system
+system = System(
+    clusters
+)
+
+# Create the time step
 time = Time(0, tmax, dt)
 
 
