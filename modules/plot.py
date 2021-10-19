@@ -23,6 +23,10 @@ class Plotter:
             "energy":   ["time",    "E_tot, E_kin, E_pot, E_err",   "grid"],
             "timepos":  ["time",    "pos_x, pos_y, pos_z",          "grid"],
         },
+        "cluster": {
+            "mom":      ["time",    "mom_x, mom_y, mom_z",          "grid"],
+            "energy":   ["time",    "E_tot, E_kin, E_pot, E_err",   "grid"],
+        },
         "system": {
             "mom":      ["time",    "mom_x, mom_y, mom_z",          "grid"],
             "energy":   ["time",    "E_tot, E_kin, E_pot, E_err",   "grid"],
@@ -49,7 +53,7 @@ class Plotter:
                 while True:
 
                     # Get the new option
-                    option = input("Plotting Data File\n\tOptions = %s(S)ystem, (B)odies%s: " \
+                    option = input("Plotting Data File\n\tOptions = %s(B)odies, (C)luster, (S)ystem%s: " \
                         % (Color.DEFAULT, Color.RESET)).lower()
                     
                     # If using a system option
@@ -58,11 +62,33 @@ class Plotter:
                         self.outputs = [self.dir + file for file in os.listdir(self.dir) if "system" in file]
                         break
 
+                    # If using a system option
+                    if option == "c":
+                        self.option = "cluster"
+
+                        self.outputs = [self.dir + file for file in os.listdir(self.dir) if "cluster" in file]
+
+                        # Check for only one cluster
+                        if len(self.outputs) == 1: break
+                        
+                        # Ask for the cluster to plot
+                        cluster_idx = input("Select a Cluster [%s%d, %d%s]: " \
+                            % (Color.DEFAULT, 0, len(self.outputs) - 1, Color.RESET)).lower()
+
+                        # Check if only one cluster is selected
+                        if cluster_idx.isdigit() and int(cluster_idx) < len(self.outputs):
+                            self.outputs = [self.outputs[int(cluster_idx)]]
+
+                        break
+
                     # If using the body option
                     if option == "b":
                         self.option = "body"
 
                         self.outputs = [self.dir + file for file in os.listdir(self.dir) if "body" in file]
+
+                        # Check for only one body
+                        if len(self.outputs) == 1: break
                         
                         # Ask for the body to plot
                         body_idx = input("Select a Body [%s%d, %d%s]: " \

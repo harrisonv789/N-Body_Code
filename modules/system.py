@@ -90,6 +90,7 @@ class System:
 
     # Updates the properties of the system
     def update(self):
+        for cluster in self.clusters: cluster.update()
         self.get_system_L()
         self.get_system_PE()
         self.get_system_KE()
@@ -169,17 +170,17 @@ class System:
     
     # Calculates the current system total angular momentum
     def get_system_L (self) -> Vector:
-        self.E_pot = sum([cluster.get_cluster_L() for cluster in self.clusters])
+        self.E_pot = sum([cluster.L for cluster in self.clusters])
         return self.E_pot
     
     # Calculates the current system total kinetic energy
     def get_system_KE (self) -> float64:
-        self.E_kin = sum([cluster.get_cluster_KE() for cluster in self.clusters])
+        self.E_kin = sum([cluster.E_kin for cluster in self.clusters])
         return self.E_kin
 
     # Calculates the current system total potential energy
     def get_system_PE (self) -> float64:
-        self.E_pot = sum([cluster.get_cluster_PE() for cluster in self.clusters])
+        self.E_pot = sum([cluster.E_pot for cluster in self.clusters])
         return self.E_pot
 
     # Calculates the current system total energy

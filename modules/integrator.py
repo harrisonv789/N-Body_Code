@@ -77,6 +77,24 @@ class Integrator:
             # Add the file to the list
             files.append(file)
 
+        # Stores the output files from each cluster
+        cluster_files = []
+
+        # Loops through and creates an output file for each 
+        for idx, cluster in enumerate(system.clusters):
+
+            # Get the file name and create the header
+            file_name = ClusterFile.get_file_name("cluster", idx)
+            file = ClusterFile(name = file_name)
+            file.header()
+
+            # Write the initial data to the file
+            file.write(time, cluster)
+            
+            # Add the file to the list
+            cluster_files.append(file)
+
+
         # Creates system file to store system data
         sys_file = SystemFile()
         sys_file.header()
@@ -112,10 +130,11 @@ class Integrator:
                 # Write data to file if able to write
                 if can_write: files[idx].write(time, body)        
                     
-            # Update the system data file
+            # Update the system and cluster data file
             if can_write: 
                 self.system.update()
-                sys_file.write(time, self.system)        
+                sys_file.write(time, self.system)     
+                for idx, cluster in enumerate(system.clusters): cluster_files[idx].write(time, cluster)   
 
             # Output the progress and flush the buffer
             if self.verbose and time.steps_max >= self.ticks and time.steps % int(time.steps_max / self.ticks) == 0:
