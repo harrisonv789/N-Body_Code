@@ -17,7 +17,7 @@ from modules.model import *
 
 # Simulation parameters
 model_name = "kepler"  # The name of the model
-dt = 0.002                  # The step size
+dt = 0.05                  # The step size
 output_dt = 0.01            # The output timestep to save data
 tmax = 2 * PI               # The max timestep
 output = "body.dat"       # The output filename to store the data
@@ -63,9 +63,10 @@ else:
 
 # Create a galaxy
 galaxy = Galaxy(
-    n_bodies = 20,
+    n_bodies = 120,
     mass = 1.0,
-    rings = 1
+    ring_spacing = 3,
+    theta = 0
 )
 
 # Create a cluster

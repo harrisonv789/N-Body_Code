@@ -22,6 +22,7 @@ class Plotter:
             "3d":       ["pos_x",   "pos_y, pos_z",                 "star, anim, 3d"],
             "energy":   ["time",    "E_tot, E_kin, E_pot, E_err",   "grid"],
             "timepos":  ["time",    "pos_x, pos_y, pos_z",          "grid"],
+            "galaxy":   ["pos_x",   "pos_y",                        "equal, grid, anim, nolegend, nolines"],
         },
         "cluster": {
             "mom":      ["time",    "mom_x, mom_y, mom_z",          "grid"],
@@ -255,6 +256,7 @@ class Plotter:
         marker = "o" if "points" in args else ""
         linestyle = "dashed" if "dashed" in args else "solid"
         linestyle = 'none' if "points" in args else linestyle
+        nolines = "nolines" in args
 
         # Will set a 3D graph if it is an argument and 2 Y values are used (the second for Z)
         _3d = "3d" in args and len(y_plots) == 2 and not analysis
@@ -350,12 +352,12 @@ class Plotter:
                         if _3d:
                             z_data = self.data[key][y_plots[1]]
                             # Add the previous positions
-                            ax.plot3D(x_data[:val], y_data[:val], z_data[:val], marker=marker, linestyle=linestyle, markersize=1, label=label, alpha=0.7)
+                            if not nolines: ax.plot3D(x_data[:val], y_data[:val], z_data[:val], marker=marker, linestyle=linestyle, markersize=1, label=label, alpha=0.7)
                             # Add the current position
                             ax.plot3D(x_data[val], y_data[val], z_data[val], marker="o", color="black")
                         else:
                             # Add previous positions
-                            ax.plot(x_data[:val], y_data[:val], marker=marker, linestyle=linestyle, markersize=1, label=label, alpha=0.7)
+                            if not nolines: ax.plot(x_data[:val], y_data[:val], marker=marker, linestyle=linestyle, markersize=1, label=label, alpha=0.7)
                             # Add the current position
                             ax.plot(x_data[val], y_data[val], marker="o", color="black")
                 

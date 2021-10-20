@@ -16,10 +16,10 @@ class Galaxy:
     rings: int = 1
 
     # The number of bodies per ring
-    ring_bodies = [0]
+    ring_bodies = []
 
-    # The radius of each ringe
-    ring_radius = [1]
+    # The radius of each ring
+    ring_radius = []
 
     # A list of masses
     masses: list = [1]
@@ -30,15 +30,18 @@ class Galaxy:
     # The inclination angle theta
     theta: float64 = 0.0
 
+    # The ring spacing
+    ring_spacing: float64 = 1.0
+
 
     # Constructor for galaxy class
     def __init__(self, n_bodies: int = 1, mass: float64 = 1.0, **kwargs):
-        self.n_bodies = n_bodies
+        self.n_bodies = n_bodies + 1
         self.masses = [mass]
         self.__dict__.update(kwargs)
 
         # Create the rest of the masses
-        for idx in range(1, n_bodies): self.masses.append(0)
+        for idx in range(1, self.n_bodies): self.masses.append(0)
 
         # Constructs the rings
         self.construct_rings()
@@ -48,8 +51,24 @@ class Galaxy:
     # Constructs the rings in the galaxy
     def construct_rings (self):
         ring = 0
+        ring_max = 0
+        self.ring_radius.append(self.ring_spacing)
+        self.ring_bodies.append(0)
         for idx in range(1, self.n_bodies):
+            if idx > self.max_particles_per_ring(ring) + ring_max:
+                ring_max += self.max_particles_per_ring(ring)
+                ring += 1
+                self.ring_radius.append(self.ring_spacing * (ring + 1))
+                self.ring_bodies.append(0)
             self.ring_bodies[ring] += 1
+
+        # Set the number of rings
+        self.rings = ring + 1
+
+
+    # The maximum particles per ring
+    def max_particles_per_ring (self, ring: int) -> int:
+        return 12 + (6 * ring)
 
 
     # Returns the velocity
@@ -62,11 +81,18 @@ class Galaxy:
         
         # If it is the first body in the cluster, set to base conditions
         if index == 0:
-            return self.galaxy_state()
+            state = State()
         
         else:
+        
+            # Determine the ring
             ring = 0
-            fraction = (index - 1) / self.ring_bodies[ring]
+            prev_index = 1
+            while index - prev_index >= self.ring_bodies[ring]:
+                prev_index += self.ring_bodies[ring]
+                ring += 1
+
+            fraction = (index - prev_index) / self.ring_bodies[ring]
             phi = fraction * 2 * PI
 
             # Determine the position
@@ -82,10 +108,9 @@ class Galaxy:
             velocity = Vector(vel_x, vel_y, vel_z) * self.v_phi(self.ring_radius[ring])
 
             # Create and return the state
-            return State(position, velocity, Vector())
+            state = State(position, velocity, Vector())
 
-
-        return State()
+        return state + self.galaxy_state()
 
 
     # Returns the galaxy state
