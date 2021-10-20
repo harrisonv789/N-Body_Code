@@ -53,7 +53,7 @@ class Integrator:
         self.output = output
 
         # Call check to see if needing to update
-        if not InitialFile.write(time, system) and False:
+        if not InitialFile.write(time, system):
             Color.print("\nInitial conditions unchanged.", Color.WARNING)
             return
 
@@ -137,7 +137,7 @@ class Integrator:
                 for idx, cluster in enumerate(system.clusters): cluster_files[idx].write(time, cluster)   
 
             # Output the progress and flush the buffer
-            if self.verbose and time.steps_max >= self.ticks and time.steps % int(time.steps_max / self.ticks) == 0:
+            if self.verbose:
                 print("\t%2.1f%%  |  %s%s%s" % ((time.progress * 100.0), Color.YELLOW_B, \
                     ("=" * int(time.progress * self.ticks)), Color.END), end="\r")
                 sys.stdout.flush()

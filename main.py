@@ -18,9 +18,9 @@ import numpy as np
 
 # Simulation parameters
 model_name = "kepler"  # The name of the model
-dt = 0.2                  # The step size
+dt = 1                  # The step size
 output_dt = 0.01            # The output timestep to save data
-tmax = 1               # The max timestep
+tmax = 5000               # The max timestep
 output = "body.dat"       # The output filename to store the data
 use_analysis = False         # A flag for using the analysis tool
 plot_data = True            # A flag for plotting data

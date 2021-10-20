@@ -62,7 +62,8 @@ class Time:
     # Returns the progress as a fraction from 0 to 1
     @property
     def progress (self) -> float64:
-        return (self.time - self.start) / (self.end - self.start)
+        prog = (self.time - self.start) / (self.end - self.start)
+        return prog if prog < 1.0 else 1.0
 
     # Function that returns whether or not the time is running
     @property

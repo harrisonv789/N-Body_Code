@@ -55,7 +55,8 @@ class Body:
         self.model = model
         self.state = state
         self.mass = mass
-        self.has_mass == mass > 0
+        self.has_mass = mass > 0.1
+        
 
     # Resets the data
     def reset (self):
