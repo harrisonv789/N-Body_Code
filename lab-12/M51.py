@@ -21,8 +21,8 @@ import numpy as np
 
 # Time parameters
 dt = 0.2                        # The step size
-output_dt = 5                   # The output timestep to save data
-tmax = 1600                     # The max timestep
+output_dt = 20                  # The output timestep to save data
+tmax = 20                     # The max timestep
 
 
 
@@ -31,17 +31,13 @@ tmax = 1600                     # The max timestep
 ##########################################################################
 
 # Store the current model
-model = KeplerModel(
-    a       = 1.0, 
-    e       = 0.6,
-    v_mul   = 1.0,
-)
+model = KeplerModel()
 
 # Galaxy variables
 galaxy_mass_a = 1.0
-galaxy_mass_b = 1.0
+galaxy_mass_b = 1.0/3.0
 rmin = 25
-e = 0.6
+e = 0.8
 
 # Calculated variables
 M = sum([galaxy_mass_a, galaxy_mass_b])
@@ -56,8 +52,8 @@ v_0 = np.sqrt(a * (1 - e ** 2) * M) / r
 
 # Create the galaxy state vectors
 galaxy_state_a = State(
-    Vector(-r * galaxy_mass_a / M, 0, 0),
-    Vector(0, -v_0 * galaxy_mass_a / M, 0),
+    Vector(r * galaxy_mass_a / M, 0, 0),
+    Vector(0, v_0 * galaxy_mass_a / M, 0),
     Vector()
 )
 
@@ -87,17 +83,17 @@ cluster_a = Cluster(
 
 # Get the second galaxy state
 galaxy_state_b = State(
-    Vector(r * galaxy_mass_b / M, 0, 0),
-    Vector(0, v_0 * galaxy_mass_b / M, 0),
+    Vector(-r * galaxy_mass_b / M, 0, 0),
+    Vector(0, -v_0 * galaxy_mass_b / M, 0),
     Vector()
 )
 
 # Create the second galaxy
 galaxy_b = Galaxy(
-    n_bodies = 120,
+    n_bodies = 30,
     mass = galaxy_mass_b,
     ring_spacing = 3,
-    theta = 45 * DEG2RAD,
+    theta = -70 * DEG2RAD,
     galaxy_pos = galaxy_state_b.x,
     galaxy_vel = galaxy_state_b.v,
 )
@@ -153,12 +149,13 @@ params = {
     "legend": False,
     "lines": False,
     "limits": True,
-    "limits_x": 100.0,
-    "limits_y": 80.0,
-    "equal": True,
+    "limits_x_min": -75.0,
+    "limits_x_max": +200.0,
+    "limits_y_min": -100.0,
+    "limits_y_max": +100.0,
     "marker_size": 1.5,
     "marker_color": "red",
-    "save": "collision_1.mp4",
+    "save": "M51.mp4",
     "interval": 30,
 }
 
@@ -178,5 +175,6 @@ plotter.plot(
     animate = False,
     line_style = "dashed",
     marker = "",
-    title = "Energy Conservation over Time"
+    title = "M51 Energy Conservation over Time",
+    save = "M51_energy.png",
 )
