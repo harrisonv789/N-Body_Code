@@ -87,8 +87,9 @@ class Cluster:
 
         # Check for missing mass information and use ones
         if len(self.masses) < self.n_bodies:
+            default = 1.0 if len(self.masses) == 0 else self.masses[0]
             for i in range(len(self.masses), self.n_bodies):
-                self.masses.append(1.0)
+                self.masses.append(default)
         
         # Calculate the total cluster mass
         self.mass_total = sum(self.masses)
@@ -107,7 +108,7 @@ class Cluster:
 
             # Add the body to the list
             self.bodies.append(b)
-            
+
 
 
     # Updates the properties of the cluster

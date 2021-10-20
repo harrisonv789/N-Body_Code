@@ -71,8 +71,19 @@ cluster = Cluster(
     IC = "two_body"
 )
 
+# Create a cluster
+cluster2 = Cluster(
+    model, 
+    n_bodies = 2, 
+    radius = 1.0, 
+    vel_vec = Vector(0, 1, 0), 
+    use_background = False,
+    masses = [0],
+    IC = "random_circular"
+)
+
 # Create an array of clusters
-clusters = [cluster]
+clusters = [cluster, cluster2]
 
 # Create the system
 system = System(

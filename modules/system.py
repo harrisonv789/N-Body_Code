@@ -165,7 +165,7 @@ class System:
                 pot += mass / mag if mag > 0 else 0.0
 
         # Return the potential over the mass
-        return pot / body.mass
+        return pot / body.mass if body.mass > 0 else 0.0
 
     
     # Calculates the current system total angular momentum
