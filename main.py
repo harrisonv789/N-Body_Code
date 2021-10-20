@@ -3,6 +3,7 @@
 # Import all needed packages
 from modules.time import Time
 from modules.cluster import Cluster
+from modules.galaxy import Galaxy
 from modules.system import System
 from modules.integrator import *
 from modules.analysis import Analysis
@@ -16,7 +17,7 @@ from modules.model import *
 
 # Simulation parameters
 model_name = "kepler"  # The name of the model
-dt = 0.001                  # The step size
+dt = 0.002                  # The step size
 output_dt = 0.01            # The output timestep to save data
 tmax = 2 * PI               # The max timestep
 output = "body.dat"       # The output filename to store the data
@@ -60,30 +61,26 @@ else:
     raise Exception("Invalid model name used.")
 
 
+# Create a galaxy
+galaxy = Galaxy(
+    n_bodies = 20,
+    mass = 1.0,
+    rings = 1
+)
+
 # Create a cluster
 cluster = Cluster(
     model, 
-    n_bodies = 2, 
+    n_bodies = galaxy.n_bodies, 
     radius = 1.0, 
     vel_vec = Vector(0, 1, 0), 
     use_background = False,
-    masses = [2, 1],
-    IC = "two_body"
-)
-
-# Create a cluster
-cluster2 = Cluster(
-    model, 
-    n_bodies = 2, 
-    radius = 1.0, 
-    vel_vec = Vector(0, 1, 0), 
-    use_background = False,
-    masses = [0],
-    IC = "random_circular"
+    masses = galaxy.masses,
+    init_callback = galaxy.init_callback,
 )
 
 # Create an array of clusters
-clusters = [cluster, cluster2]
+clusters = [cluster]
 
 # Create the system
 system = System(
