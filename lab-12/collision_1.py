@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+# Include previous directory
+import sys
+sys.path.append("../")
+
 # Import all needed packages
 from modules.time import Time
 from modules.cluster import Cluster
@@ -16,13 +20,10 @@ import numpy as np
 # PARAMETERS
 ##########################################################################
 
-# Simulation parameters
-dt = 0.2                  # The step size
-output_dt = 0.01            # The output timestep to save data
-tmax = 10               # The max timestep
-output = "body.dat"       # The output filename to store the data
-use_analysis = False         # A flag for using the analysis tool
-plot_data = True            # A flag for plotting data
+# Time parameters
+dt = 0.2                        # The step size
+output_dt = 5                   # The output timestep to save data
+tmax = 1600                     # The max timestep
 
 
 
@@ -48,6 +49,11 @@ M = sum([galaxy_mass_a, galaxy_mass_b])
 a = rmin / (1.0 - e)
 r = a * (1.0 + e)
 v_0 = np.sqrt(a * (1 - e ** 2) * M) / r 
+
+
+##########################################################################
+# GALAXY A
+##########################################################################
 
 # Create the galaxy state vectors
 galaxy_state_a = State(
@@ -76,6 +82,10 @@ cluster_a = Cluster(
 )
 
 
+##########################################################################
+# GALAXY B
+##########################################################################
+
 # Get the second galaxy state
 galaxy_state_b = State(
     Vector(r * galaxy_mass_b / M, 0, 0),
@@ -103,6 +113,10 @@ cluster_b = Cluster(
 )
 
 
+##########################################################################
+# SYSTEM
+##########################################################################
+
 # Create an array of clusters
 clusters = [cluster_a, cluster_b]
 
@@ -121,12 +135,7 @@ time = Time(0, tmax, dt)
 ##########################################################################
 
 integrator = LeapFrogIntegrator()
-integrator.execute(system, time, output, output_timestep = output_dt)
-
-# If using the analysis tool
-if use_analysis:
-    analysis = Analysis("body_00000.dat", True)
-    analysis.output()
+integrator.execute(system, time, "body.dat", output_timestep = output_dt)
 
 
 
@@ -134,9 +143,41 @@ if use_analysis:
 # CREATES PLOT
 ##########################################################################
 
-# If plotting data
-if plot_data:
+# Creates a plotter with the outputs
+# Gets list of body files
+body_outputs = ["output/" + file for file in os.listdir("output") if "body" in file]
+plotter = Plotter(outputs = body_outputs)
 
-    # Creates a plotter with the outputs
-    plotter = Plotter()
-    plotter.ask_plot()
+# Create the parameters
+params = {
+    "animate": True,
+    "legend": False,
+    "lines": False,
+    "limits": True,
+    "limits_x": 100.0,
+    "limits_y": 80.0,
+    "equal": True,
+    "marker_size": 1.5,
+    "marker_color": "red",
+    "save": "collision_1.mp4",
+    "interval": 30,
+}
+
+# Plot the X-Y plot
+plotter.plot(
+    "pos_x", 
+    "pos_y",
+    **params,
+)
+
+# Plot the energy plot
+system_outputs = ["output/" + file for file in os.listdir("output") if "system" in file]
+plotter = Plotter(outputs = system_outputs)
+plotter.plot(
+    "time",
+    ["E_kin", "E_pot", "E_tot"],
+    animate = False,
+    line_style = "dashed",
+    marker = "",
+    title = "Energy Conservation over Time"
+)
