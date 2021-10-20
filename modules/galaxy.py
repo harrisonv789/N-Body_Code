@@ -33,6 +33,12 @@ class Galaxy:
     # The ring spacing
     ring_spacing: float64 = 1.0
 
+    # Initial position
+    galaxy_pos: Vector = Vector()
+
+    # Initial velocity
+    galaxy_vel: Vector = Vector()
+
 
     # Constructor for galaxy class
     def __init__(self, n_bodies: int = 1, mass: float64 = 1.0, **kwargs):
@@ -50,10 +56,18 @@ class Galaxy:
 
     # Constructs the rings in the galaxy
     def construct_rings (self):
+
+        # Reset the variables
+        self.ring_bodies = []
+        self.ring_radius = []
         ring = 0
         ring_max = 0
+
+        # Construct the first ring
         self.ring_radius.append(self.ring_spacing)
         self.ring_bodies.append(0)
+
+        # Loop hrough all the bodies and check the max particles
         for idx in range(1, self.n_bodies):
             if idx > self.max_particles_per_ring(ring) + ring_max:
                 ring_max += self.max_particles_per_ring(ring)
@@ -78,7 +92,7 @@ class Galaxy:
 
     # Callback function for returning the initial state of the bodies
     def init_callback (self, cluster: Cluster, index: int, body: Body) -> State:
-        
+
         # If it is the first body in the cluster, set to base conditions
         if index == 0:
             state = State()
@@ -115,4 +129,4 @@ class Galaxy:
 
     # Returns the galaxy state
     def galaxy_state (self) -> State:
-        return State()
+        return State(self.galaxy_pos, self.galaxy_vel, Vector())

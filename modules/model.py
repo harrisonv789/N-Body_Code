@@ -107,7 +107,7 @@ class KeplerModel (Model):
 
     # Calculates the starting position at some radius
     def initial_position (self, radius: np.float64) -> Vector:
-        x = self.a * (1 + self.e)
+        x = self.a * (1 + self.e) * radius
         return Vector(x, 0, 0)
 
     # Calculates the starting velocity from some position

@@ -18,11 +18,13 @@ class Plotter:
     # Store a list of standard plots
     preset_plots = {
         "body": {
-            "pos":      ["pos_x",   "pos_y",                        "equal, star, grid, anim, limits"],
-            "3d":       ["pos_x",   "pos_y, pos_z",                 "star, anim, 3d"],
-            "energy":   ["time",    "E_tot, E_kin, E_pot, E_err",   "grid"],
-            "timepos":  ["time",    "pos_x, pos_y, pos_z",          "grid"],
-            "galaxy":   ["pos_x",   "pos_y",                        "equal, grid, anim, nolegend, nolines"],
+            "pos":          ["pos_x",   "pos_y",                        "equal, star, grid, anim, limits"],
+            "3d":           ["pos_x",   "pos_y, pos_z",                 "star, anim, 3d"],
+            "energy":       ["time",    "E_tot, E_kin, E_pot, E_err",   "grid"],
+            "timepos":      ["time",    "pos_x, pos_y, pos_z",          "grid"],
+            "galaxy_top":   ["pos_x",   "pos_y",                        "equal, grid, anim, nolegend, nolines"],
+            "galaxy_side":  ["pos_x",   "pos_z",                        "equal, grid, anim, nolegend, nolines"],
+            "galaxy_3d":   ["pos_x",   "pos_y, pos_z",                  "equal, 3d, grid, anim, nolegend, nolines"],
         },
         "cluster": {
             "mom":      ["time",    "mom_x, mom_y, mom_z",          "grid"],
@@ -157,6 +159,9 @@ class Plotter:
         # Remember previous commands (for x, y and params)
         previous = ["", "", ""]
 
+        # Whether to repeat from start again
+        back = False
+
         # Loop while plotting
         while True:
             print("\n---")
@@ -167,6 +172,11 @@ class Plotter:
 
             # Check for quit
             if preset == "q": break
+
+            # Check for back
+            if preset == "b":
+                back = True
+                break
             
             # Check if has a valid plot
             if preset in self.preset_plots[self.option].keys():
@@ -243,6 +253,10 @@ class Plotter:
             self.plot(x_axis, y_axis, params)
             previous = [x_axis, ", ".join(y_axis), ", ".join(params)]
 
+        # If starting again
+        if back: 
+            self.__init__()
+            self.ask_plot()
 
 
     # Makes a simple plot
