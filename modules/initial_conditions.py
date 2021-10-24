@@ -2,7 +2,10 @@ from .model import Model
 from .body import Body
 from .state import State
 from .vector import Vector
+from .constants import *
 from numpy import float64
+from math import *
+import random
 
 # Base Initial conditions class
 class InitialConditions:
@@ -19,7 +22,8 @@ class InitialConditions:
         "two_body",
         "figure_eight",
         "unstable_triple",
-        "stable_triple"
+        "stable_triple",
+        "random_circular"
     ]
 
 
@@ -30,6 +34,7 @@ class InitialConditions:
         if self.key == "figure_eight": return self.figure_eight_IC(index, body)
         if self.key == "unstable_triple": return self.unstable_triple_IC(index, body)
         if self.key == "stable_triple": return self.stable_triple_IC(index, body)
+        if self.key == "random_circular": return self.random_circular_IC(index, body)
         return State()
 
 
@@ -103,5 +108,18 @@ class InitialConditions:
         elif index == 2:   
             state.x = Vector(2.4, 0.0, 0.0)
             state.v = Vector(0.0, 0.720, 0.0)
+
+        return state
+
+    
+    # Random Circular Initial Conditions
+    def random_circular_IC (self, index: int, body: Body) -> State:
+        state = State()
+
+        # Get a random degree
+        degree = random.random() * 2 * PI
+
+        # Set the random position
+        state.x = Vector(cos(degree), sin(degree), 0)
 
         return state

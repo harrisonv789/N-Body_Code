@@ -13,6 +13,9 @@ class Body:
     # State Vectors
     state: State = State()
 
+    # Flag for whether the body has mass
+    has_mass: bool = True
+
     # Radius
     r: float64 = 0.0
 
@@ -52,6 +55,8 @@ class Body:
         self.model = model
         self.state = state
         self.mass = mass
+        self.has_mass = mass > 0.1
+        
 
     # Resets the data
     def reset (self):

@@ -19,6 +19,16 @@ class State:
         self.v = v
         self.a = a
 
+    # Adds two states together
+    def __add__ (self, other):
+        state = State(self.x + other.x, self.v + other.v, self.a + other.a)
+        return state
+
+    # Subtracts two states together
+    def __sub__ (self, other):
+        state = State(self.x - other.x, self.v - other.v, self.a - other.a)
+        return state
+
     # Returns the position
     @property
     def position (self) -> Vector:

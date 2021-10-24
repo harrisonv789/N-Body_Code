@@ -1,4 +1,5 @@
 from numpy import float64
+from .cluster import Cluster
 from .constants import *
 from .model import Model
 from .body import Body
@@ -13,29 +14,17 @@ class System:
     # PARAMETERS
     ##########################################################################
 
-    # Whether to use background model
-    use_background: bool = False
+    # The number of clusters
+    n_clusters: int = 1
+    
+    # A list of the clusters
+    clusters: list = [] 
 
     # The number of bodies
     n_bodies: int = 1
 
-    # The masses of the bodies
-    masses: list = []
-    
-    # A key for the Initial Conditions
-    IC: str = ""
-
-    # Initial radius
-    radius: float = 1.0
-
-    # Initial velocity vector
-    vel_vec: Vector = Vector(0, 1.0, 0)
-
     # A list of all bodies
-    bodies = []
-
-    # The intial conditions function callback
-    init_callback = None
+    bodies: list = []
 
 
     ##############################
@@ -68,10 +57,8 @@ class System:
     ##########################################################################
 
     # Creates a new system with a number of bodies
-    # By default, it will create 1 body
-    def __init__ (self, model: Model, n_bodies: int = 1, **kwargs):
-        self.model = model
-        self.n_bodies = n_bodies
+    def __init__ (self, clusters: list, **kwargs):
+        self.clusters = clusters
         self.__dict__.update(kwargs)
         self.reset()
 
@@ -79,36 +66,22 @@ class System:
     # Resets the system and sets up the bodies
     def reset (self):
 
-        # If only one body, use a background model
-        if self.n_bodies == 1: self.use_background = True
+        # Resets the clusters
+        for cluster in self.clusters: cluster.reset()
 
-        # Resets the list of bodies
+        # Calculate the total mass
+        self.mass_total = sum([cluster.mass_total for cluster in self.clusters])
+
+        # Resets the bodies
         self.bodies = []
 
-        # Check for missing mass information and use ones
-        if len(self.masses) < self.n_bodies:
-            for i in range(len(self.masses), self.n_bodies):
-                self.masses.append(1.0)
-        
-        # Calculate the total system mass
-        self.mass_total = sum(self.masses)
+        # Gets all the bodies
+        for cluster in self.clusters: self.bodies.extend(cluster.bodies)
 
-        # Set the mass of the modle
-        self.model.M = self.mass_total
+        # Gets the number of bodies
+        self.n_bodies = len(self.bodies)
 
-        # Loop through each of the bodies to create
-        for idx in range(self.n_bodies):
-
-            # Create the new body
-            b = Body(self.model, State(), self.masses[idx])
-
-            # Get the initial state of the body
-            b.state = self.get_initial(idx, b)
-
-            # Add the body to the list
-            self.bodies.append(b)
-
-        # Set the starting properties of the bodies
+        # Sets the starting properties of the bodies
         for idx in range(self.n_bodies):
             # Update the potential and reset the body
             self.bodies[idx].PE = self.get_potential(idx)
@@ -117,6 +90,7 @@ class System:
 
     # Updates the properties of the system
     def update(self):
+        for cluster in self.clusters: cluster.update()
         self.get_system_L()
         self.get_system_PE()
         self.get_system_KE()
@@ -151,11 +125,16 @@ class System:
 
         # Get the body and background acceleration
         body: Body = self.bodies[body_idx]
-        a: Vector = self.model.acceleration(body.state.x) if self.use_background else Vector()
-        
+        a: Vector = Vector()
+
+        # Add in elements from the cluster's background
+        for cluster in self.clusters:
+            if cluster.use_background:
+                a += cluster.model.acceleration(body.state.x)
+              
         # Calculate the effects of all bodies
         for idx in range(self.n_bodies):
-            if idx != body_idx:
+            if idx != body_idx and self.bodies[idx].has_mass:
                 distance: Vector = body.state.x - self.bodies[idx].state.x
                 mag = distance.mag
                 a_fac = (-1.0 * G * self.bodies[idx].mass) / (mag ** 3) if mag > 0 else 0.0
@@ -170,43 +149,39 @@ class System:
 
         # Get the body and background potential
         body = self.bodies[body_idx]
-        pot = self.model.potential(body.position) if self.use_background else 0.0
+        pot = 0.0
+
+        # Add in elements from the cluster's potential
+        for cluster in self.clusters:
+            if cluster.use_background:
+                pot += cluster.model.potential(body.position)
 
         # Loop through all bodies
         for idx in range(self.n_bodies):
-            if idx != body_idx:
+            if idx != body_idx and self.bodies[idx].has_mass:
                 # Add the potential to the data
                 mass = -1.0 * G * body.mass * self.bodies[idx].mass
                 mag = (body.position - self.bodies[idx].position).mag
                 pot += mass / mag if mag > 0 else 0.0
 
         # Return the potential over the mass
-        return pot / body.mass
+        return pot / body.mass if body.mass > 0 else 0.0
 
     
     # Calculates the current system total angular momentum
     def get_system_L (self) -> Vector:
-        self.L = Vector()
-        for body in self.bodies:
-            self.L += body.L
-        return self.L
-
+        self.E_pot = sum([cluster.L for cluster in self.clusters])
+        return self.E_pot
     
     # Calculates the current system total kinetic energy
     def get_system_KE (self) -> float64:
-        self.E_kin = 0.0
-        for body in self.bodies:
-            self.E_kin += body.KE
+        self.E_kin = sum([cluster.E_kin for cluster in self.clusters])
         return self.E_kin
 
     # Calculates the current system total potential energy
     def get_system_PE (self) -> float64:
-        self.E_pot = 0.0
-        for body in self.bodies:
-            self.E_pot += body.PE * body.mass
-        self.E_pot /= 2.0
+        self.E_pot = sum([cluster.E_pot for cluster in self.clusters])
         return self.E_pot
-
 
     # Calculates the current system total energy
     def get_system_energy (self) -> float64:
@@ -214,30 +189,7 @@ class System:
         if not self.E_init: self.E_init = self.E_tot
         return self.E_tot
 
-
     # Calculates the current system total energy error
     def get_system_E_error (self) -> float64:
         if self.E_init and self.E_init != 0.0: self.E_err = abs((self.E_init - self.E_tot) / self.E_init)
         return self.E_err
-
-
-
-
-    ##########################################################################
-    # INITIAL STATE FUNCTIONS
-    ##########################################################################
-
-    # Sets the intial values of the bodies
-    def get_initial (self, idx: int, body: Body) -> State:
-
-        # If a callback exists
-        if self.init_callback:
-            return self.init_callback(self, idx, body)
-
-        # If using two body problem
-        if self.IC in InitialConditions.IC_KEYS:
-            IC = InitialConditions(self.IC.lower(), self.model, self.mass_total)
-            return IC.get_state(idx, body)
-
-        # If standard system
-        return self.model.init_state(self.radius, self.vel_vec)

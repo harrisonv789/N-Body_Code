@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 
+# Include previous directory
+import sys
+sys.path.append("../")
+
 # Import all needed packages
 from modules.time import Time
 from modules.cluster import Cluster
 from modules.galaxy import Galaxy
 from modules.system import System
 from modules.integrator import *
-from modules.analysis import Analysis
 from modules.plot import Plotter
 from modules.model import *
 import numpy as np
@@ -16,14 +19,10 @@ import numpy as np
 # PARAMETERS
 ##########################################################################
 
-# Simulation parameters
-model_name = "kepler"  # The name of the model
-dt = 0.2                  # The step size
-output_dt = 2            # The output timestep to save data
-tmax = 1600               # The max timestep
-output = "body.dat"       # The output filename to store the data
-use_analysis = False         # A flag for using the analysis tool
-plot_data = True            # A flag for plotting data
+# Time parameters
+dt = 0.2                        # The step size
+output_dt = 10                  # The output timestep to save data
+tmax = 5000                     # The max timestep
 
 
 
@@ -32,40 +31,13 @@ plot_data = True            # A flag for plotting data
 ##########################################################################
 
 # Store the current model
-if model_name.lower() == "kepler":
-    model = KeplerModel(
-        a       = 1.0, 
-        e       = 0.6,
-        v_mul   = 1.0,
-    )
-
-elif model_name.lower() == "isochrone":
-    model = IsochroneModel(
-        b       = 0.1,
-        v_esc   = 0.5,
-    )
-
-elif model_name.lower() == "oscillator":
-    model = OscillatorModel(
-        rho     = 0.5,
-    )
-
-elif model_name.lower() == "logarithmic":
-    model = LogarithmicModel(
-        v0     = 1.0,
-        Rc     = 0.2,
-        q      = 0.8,
-        v_mul  = 0.5,
-    )
-
-else:
-    raise Exception("Invalid model name used.")
+model = KeplerModel()
 
 # Galaxy variables
 galaxy_mass_a = 1.0
-galaxy_mass_b = 1.0
+galaxy_mass_b = 1.0/3.0
 rmin = 25
-e = 0.6
+e = 0.8
 
 # Calculated variables
 M = sum([galaxy_mass_a, galaxy_mass_b])
@@ -73,10 +45,15 @@ a = rmin / (1.0 - e)
 r = a * (1.0 + e)
 v_0 = np.sqrt(a * (1 - e ** 2) * M) / r 
 
+
+##########################################################################
+# GALAXY A
+##########################################################################
+
 # Create the galaxy state vectors
 galaxy_state_a = State(
-    Vector(-r * galaxy_mass_a / M, 0, 0),
-    Vector(0, -v_0 * galaxy_mass_a / M, 0),
+    Vector(r * galaxy_mass_a / M, 0, 0),
+    Vector(0, v_0 * galaxy_mass_a / M, 0),
     Vector()
 )
 
@@ -100,10 +77,14 @@ cluster_a = Cluster(
 )
 
 
+##########################################################################
+# GALAXY B
+##########################################################################
+
 # Get the second galaxy state
 galaxy_state_b = State(
-    Vector(r * galaxy_mass_b / M, 0, 0),
-    Vector(0, v_0 * galaxy_mass_b / M, 0),
+    Vector(-r * galaxy_mass_b / M, 0, 0),
+    Vector(0, -v_0 * galaxy_mass_b / M, 0),
     Vector()
 )
 
@@ -112,7 +93,7 @@ galaxy_b = Galaxy(
     n_bodies = 120,
     mass = galaxy_mass_b,
     ring_spacing = 3,
-    theta = 45 * DEG2RAD,
+    theta = -70 * DEG2RAD,
     galaxy_pos = galaxy_state_b.x,
     galaxy_vel = galaxy_state_b.v,
 )
@@ -126,6 +107,10 @@ cluster_b = Cluster(
     init_callback = galaxy_b.init_callback,
 )
 
+
+##########################################################################
+# SYSTEM
+##########################################################################
 
 # Create an array of clusters
 clusters = [cluster_a, cluster_b]
@@ -145,12 +130,7 @@ time = Time(0, tmax, dt)
 ##########################################################################
 
 integrator = LeapFrogIntegrator()
-integrator.execute(system, time, output, output_timestep = output_dt)
-
-# If using the analysis tool
-if use_analysis:
-    analysis = Analysis("body_00000.dat", True)
-    analysis.output()
+integrator.execute(system, time, "body.dat", output_timestep = output_dt)
 
 
 
@@ -158,9 +138,43 @@ if use_analysis:
 # CREATES PLOT
 ##########################################################################
 
-# If plotting data
-if plot_data:
+# Creates a plotter with the outputs
+# Gets list of body files
+body_outputs = ["output/" + file for file in os.listdir("output") if "body" in file]
+plotter = Plotter(outputs = body_outputs)
 
-    # Creates a plotter with the outputs
-    plotter = Plotter()
-    plotter.ask_plot()
+# Create the parameters
+params = {
+    "animate": True,
+    "legend": False,
+    "lines": False,
+    "limits": True,
+    "limits_x_min": -75.0,
+    "limits_x_max": +200.0,
+    "limits_y_min": -100.0,
+    "limits_y_max": +100.0,
+    "marker_size": 1.5,
+    "marker_color": "red",
+    "save": "M51_plot.mp4",
+    "interval": 30,
+}
+
+# Plot the X-Y plot
+plotter.plot(
+    "pos_x", 
+    "pos_y",
+    **params,
+)
+
+# Plot the energy plot
+system_outputs = ["output/" + file for file in os.listdir("output") if "system" in file]
+plotter = Plotter(outputs = system_outputs)
+plotter.plot(
+    "time",
+    ["E_kin", "E_pot", "E_tot"],
+    animate = False,
+    line_style = "dashed",
+    marker = "",
+    title = "M51 Energy Conservation over Time",
+    save = "M51_energy.png",
+)

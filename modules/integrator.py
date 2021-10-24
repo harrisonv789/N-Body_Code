@@ -53,12 +53,12 @@ class Integrator:
         self.output = output
 
         # Call check to see if needing to update
-        if not InitialFile.write(time, system.model) and False:
+        if not InitialFile.write(time, system, output_timestep=output_timestep) and False:
             Color.print("\nInitial conditions unchanged.", Color.WARNING)
             return
 
         # Clear the previous files
-        BodyFile.clear_files()
+        File.clear_files()
 
         # Stores the output files for each body
         files = []
@@ -67,7 +67,7 @@ class Integrator:
         for idx, body in enumerate(system.bodies):
 
             # Get the file name and create the header
-            file_name = BodyFile.get_file_name(output, idx)
+            file_name = File.get_file_name(output, idx)
             file = BodyFile(name = file_name)
             file.header()
 
@@ -76,6 +76,24 @@ class Integrator:
             
             # Add the file to the list
             files.append(file)
+
+        # Stores the output files from each cluster
+        cluster_files = []
+
+        # Loops through and creates an output file for each 
+        for idx, cluster in enumerate(system.clusters):
+
+            # Get the file name and create the header
+            file_name = File.get_file_name("cluster", idx)
+            file = ClusterFile(name = file_name)
+            file.header()
+
+            # Write the initial data to the file
+            file.write(time, cluster)
+            
+            # Add the file to the list
+            cluster_files.append(file)
+
 
         # Creates system file to store system data
         sys_file = SystemFile()
@@ -112,13 +130,14 @@ class Integrator:
                 # Write data to file if able to write
                 if can_write: files[idx].write(time, body)        
                     
-            # Update the system data file
+            # Update the system and cluster data file
             if can_write: 
                 self.system.update()
-                sys_file.write(time, self.system)        
+                sys_file.write(time, self.system)     
+                for idx, cluster in enumerate(system.clusters): cluster_files[idx].write(time, cluster)   
 
             # Output the progress and flush the buffer
-            if self.verbose and time.steps_max >= self.ticks and time.steps % int(time.steps_max / self.ticks) == 0:
+            if self.verbose:
                 print("\t%2.1f%%  |  %s%s%s" % ((time.progress * 100.0), Color.YELLOW_B, \
                     ("=" * int(time.progress * self.ticks)), Color.END), end="\r")
                 sys.stdout.flush()
