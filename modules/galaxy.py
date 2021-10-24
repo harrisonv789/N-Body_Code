@@ -44,6 +44,7 @@ class Galaxy:
     def __init__(self, n_bodies: int = 1, mass: float64 = 1.0, **kwargs):
         self.n_bodies = n_bodies + 1
         self.masses = [mass]
+        self.mass = mass
         self.__dict__.update(kwargs)
 
         # Create the rest of the masses

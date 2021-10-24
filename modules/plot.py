@@ -7,6 +7,8 @@ from mpl_toolkits import mplot3d
 from numpy.lib.function_base import diff
 from .color import Color
 from .analysis import Analysis
+from matplotlib import rc         # These are some default settings we will use
+rc('animation', html='jshtml')    # jshtml is required for plotting in the browser
 
 # Create a class for a plotter
 class Plotter:
@@ -21,13 +23,13 @@ class Plotter:
     # Store a list of standard plots
     preset_plots = {
         "body": {
-            "pos":          ["pos_x",   "pos_y",                        {"equal": True, "star": True, "animate": True, "3d": False}],
-            "3d":           ["pos_x",   "pos_y, pos_z",                 {"equal": False, "star": True, "animate": True, "3d": True}],
+            "pos":          ["pos_x",   "pos_y",                        {"equal": True, "star": True, "animate": True, "is3d": False}],
+            "3d":           ["pos_x",   "pos_y, pos_z",                 {"equal": False, "star": True, "animate": True, "is3d": True}],
             "energy":       ["time",    "E_tot, E_kin, E_pot, E_err",   {}],
             "timepos":      ["time",    "pos_x, pos_y, pos_z",          {}],
-            "galaxy_top":   ["pos_x",   "pos_y",                        {"equal": True, "animate": True, "3d": False, "legend": False, "lines": False, "limits": True, "limits_x": 80, "limits_y": 80}],
-            "galaxy_side":  ["pos_x",   "pos_z",                        {"equal": True, "animate": True, "3d": False, "legend": False, "lines": False, "limits": True, "limits_x": 80, "limits_y": 80}],
-            "galaxy_3d":   ["pos_x",   "pos_y, pos_z",                  {"equal": True, "animate": True, "3d": True, "legend": False, "lines": False, "limits": True, "limits_x": 80, "limits_y": 80}],
+            "galaxy_top":   ["pos_x",   "pos_y",                        {"equal": True, "animate": True, "is3d": False, "legend": False, "lines": False, "limits": True, "limits_x": 80, "limits_y": 80}],
+            "galaxy_side":  ["pos_x",   "pos_z",                        {"equal": True, "animate": True, "is3d": False, "legend": False, "lines": False, "limits": True, "limits_x": 80, "limits_y": 80}],
+            "galaxy_3d":    ["pos_x",   "pos_y, pos_z",                  {"equal": True, "animate": True, "is3d": True, "legend": False, "lines": False, "limits": True, "limits_x": 80, "limits_y": 80}],
         },
         "cluster": {
             "mom":      ["time",    "mom_x, mom_y, mom_z",          {}],
@@ -47,6 +49,7 @@ class Plotter:
         self.dir = kwargs.get("dir", "output/")
         self.multiple = len(self.outputs) > 1
         self.analysis = kwargs.get("analysis", False) and self.multiple
+        self.option = "output files"
 
         # If no output specified, get the data from system or from bodies
         if len(self.outputs) == 0 and len(os.listdir(self.dir)) > 0:
@@ -121,9 +124,12 @@ class Plotter:
         with open(self.outputs[0], "r") as file:
             self.headers = [h.strip() for h in file.readline().strip().split(" ") if h != ""]
 
+        # Get name of the header
+        header = ", ".join(self.outputs).replace(self.dir, "") if len(self.outputs) < 4 else self.option + ".dat"
+
         # Print the header
         print("\n--------------------------------------------------")
-        print("%sPLOTTING DATA FROM %s%s" % (Color.HEADER, ", ".join(self.outputs).replace(self.dir, ""), Color.RESET))
+        print("%sPLOTTING DATA FROM %s%s" % (Color.HEADER, header, Color.RESET))
         print(  "--------------------------------------------------")
 
 
@@ -309,7 +315,8 @@ class Plotter:
 
         # Markers and lines Style
         "marker": "o",
-        "marker_size": 5,
+        "marker_size": 3,
+        "marker_color": "black",
         "lines": True,
         "linestyle": "solid",
         "star": False,
@@ -333,11 +340,19 @@ class Plotter:
         # Animation properties
         "animate": True,
         "interval": 100,
+        "save": None,
+        "fps": 15,
+        "time_factor": 1,
+        "show": True,
 
         # Limits
         "limits": False,
         "limits_x": 2,
         "limits_y": 2,
+        "limits_x_min": None,
+        "limits_y_min": None,
+        "limits_x_max": None,
+        "limits_y_max": None,
     }
 
     ##########################################################################
@@ -350,6 +365,10 @@ class Plotter:
         # Update the kwargs and reset with defaults first
         self.__dict__.update(self.defaults)
         self.__dict__.update(kwargs)
+
+        # Check if y plots is a string and not list
+        if type(y_plots) is str:
+            y_plots = [y_plots]
 
         # If files is empty
         if files == []:
@@ -374,7 +393,7 @@ class Plotter:
             # Loop through each data file
             for idx, key in enumerate(files):
                 data = self.data_analysis[key]
-                ax.plot(idx, data[x][row], marker="o", linestyle=self.linestyle, markersize=self.marker_size, label=key)
+                ax.plot(idx, data[x][row], marker="o", linestyle=self.linestyle, markersize=self.marker_size, label=key, color=self.marker_color)
                 ax.tick_params(axis='x', which='both', bottom=False, top=False, labelbottom=False)
 
         elif not self.animate:
@@ -431,7 +450,8 @@ class Plotter:
             # Create an update with some alpha value between 0 and 1
             def update (a: float):
                 ax.clear()
-                val = int(len(self.data[list(files)[0]][x]) * a)
+                data_len = len(self.data[list(files)[0]][x])
+                val = min(data_len - 1, int(data_len * a))
                 for p_idx, key in enumerate(files):
                     for idx, y in enumerate(y_plots):
                         label = "%s - %s" % (y, key) if self.multiple else y
@@ -442,15 +462,15 @@ class Plotter:
                             # Add the previous positions
                             if self.lines: ax.plot3D(x_data[:val], y_data[:val], z_data[:val], marker=self.marker, linestyle=self.linestyle, markersize=1, label=label, alpha=0.7)
                             # Add the current position
-                            ax.plot3D(x_data[val], y_data[val], z_data[val], marker="o", color="black", markersize=self.marker_size)
+                            ax.plot3D(x_data[val], y_data[val], z_data[val], marker="o", color=self.marker_color, markersize=self.marker_size)
                         else:
                             # Add previous positions
                             if self.lines: ax.plot(x_data[:val], y_data[:val], marker=self.marker, linestyle=self.linestyle, markersize=1, label=label, alpha=0.7)
                             # Add the current position
-                            ax.plot(x_data[val], y_data[val], marker="o", color="black", markersize=self.marker_size)
+                            ax.plot(x_data[val], y_data[val], marker="o", color=self.marker_color, markersize=self.marker_size)
                 
                 # Set the axis properties
-                self.title = "Timestep: %d" % val
+                self.title = "Timestep: %.1f" % (float(val) * float(self.time_factor))
                 self.set_axis_properties(ax)
                 
 
@@ -463,10 +483,21 @@ class Plotter:
                     ax.set_zlabel(self.__get_latex(y_plots[1]))
 
             # Create the animation call
-            anim = FuncAnimation(fig, update, repeat=True, frames=np.linspace(0, 1.0, self.interval, endpoint=False))
+            self.anim = FuncAnimation(fig, update, repeat=True, frames=np.linspace(0, 1.0, self.interval, endpoint=True))
+
+            if self.save != None:
+                print("%s\nSaving Animation. Please wait...%s" % (Color.WARNING, Color.END))
+                self.anim.save(self.save, fps=self.fps, extra_args=['-vcodec', 'libx264'])
+                print("Animation saved %ssuccessfully%s to %s" % (Color.SUCCESS, Color.END, self.save))
+
+        # Otherwise if saving image
+        elif self.save != None:
+            fig.savefig(self.save)
+            print("Image saved %ssuccessfully%s to %s" % (Color.SUCCESS, Color.END, self.save))
 
         # Show the plot
-        plt.show()
+        if self.show:
+            plt.show()
 
 
     # Set the axis properties
@@ -492,8 +523,14 @@ class Plotter:
 
         # Set the range of limits
         if self.limits:
-            ax.set_xlim(-self.limits_x, self.limits_x)
-            ax.set_ylim(-self.limits_y, self.limits_y)
+
+            # X Limits
+            if self.limits_x_min != None and self.limits_x_max != None: ax.set_xlim(self.limits_x_min, self.limits_x_max)
+            elif self.limits_x != None: ax.set_xlim(-self.limits_x, self.limits_x)
+
+            # Y Limits
+            if self.limits_y_min != None and self.limits_y_max != None: ax.set_ylim(self.limits_y_min, self.limits_y_max)
+            elif self.limits_y != None: ax.set_ylim(-self.limits_y, self.limits_y)
 
 
 

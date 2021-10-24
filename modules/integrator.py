@@ -53,7 +53,7 @@ class Integrator:
         self.output = output
 
         # Call check to see if needing to update
-        if not InitialFile.write(time, system):
+        if not InitialFile.write(time, system, output_timestep=output_timestep) and False:
             Color.print("\nInitial conditions unchanged.", Color.WARNING)
             return
 

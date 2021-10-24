@@ -79,9 +79,6 @@ class Cluster:
     # Resets the cluster and sets up the bodies
     def reset (self):
 
-        # If only one body, use a background model
-        if self.n_bodies == 1: self.use_background = True
-
         # Resets the list of bodies
         self.bodies = []
 

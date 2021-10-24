@@ -118,10 +118,10 @@ class InitialFile:
 
     # Static function to write to a file
     @staticmethod
-    def write (time: Time, system: System):
+    def write (time: Time, system: System, **kwargs):
 
         # Create save lin line
-        save = "%s\n%s" % (str(time), [str(cluster.model.__dict__) for cluster in system.clusters])
+        save = "%s\n%s\n%s" % (str(time), [str(cluster.model.__dict__) for cluster in system.clusters], str(kwargs))
 
         # Check to see if the file is the same
         if os.path.isfile("initial.dat"):
