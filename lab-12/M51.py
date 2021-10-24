@@ -21,8 +21,8 @@ import numpy as np
 
 # Time parameters
 dt = 0.2                        # The step size
-output_dt = 20                  # The output timestep to save data
-tmax = 20                     # The max timestep
+output_dt = 10                  # The output timestep to save data
+tmax = 5000                     # The max timestep
 
 
 
@@ -90,7 +90,7 @@ galaxy_state_b = State(
 
 # Create the second galaxy
 galaxy_b = Galaxy(
-    n_bodies = 30,
+    n_bodies = 120,
     mass = galaxy_mass_b,
     ring_spacing = 3,
     theta = -70 * DEG2RAD,
@@ -155,7 +155,7 @@ params = {
     "limits_y_max": +100.0,
     "marker_size": 1.5,
     "marker_color": "red",
-    "save": "M51.mp4",
+    "save": "M51_plot.mp4",
     "interval": 30,
 }
 
