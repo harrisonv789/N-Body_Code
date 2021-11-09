@@ -94,7 +94,7 @@ class Plotter:
                     if option == "b":
                         self.option = "body"
 
-                        self.outputs = [self.dir + file for file in os.listdir(self.dir) if "body" in file]
+                        self.outputs = [self.dir + file for file in os.listdir(self.dir) if "body" in file and "analysis" not in file]
 
                         # Check for only one body
                         if len(self.outputs) == 1: break

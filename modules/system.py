@@ -58,7 +58,7 @@ class System:
 
     # Creates a new system with a number of bodies
     def __init__ (self, clusters: list, **kwargs):
-        self.clusters = clusters
+        self.clusters = clusters if type(clusters) is list and len(clusters) != 1 else [clusters]
         self.__dict__.update(kwargs)
         self.reset()
 

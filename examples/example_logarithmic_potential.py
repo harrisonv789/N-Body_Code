@@ -1,15 +1,23 @@
 #!/usr/bin/env python3
 
+'''
+EXAMPLE CASE: LOGARITHMIC POTENTIAL
+
+Moves a point mass about a logarithmic potential background.
+This state has 2κ = 3Ω for the epicyclic frequency.
+'''
+
+# Include previous directory
+import sys
+sys.path.append("../")
+
 # Import all needed packages
 from modules.time import Time
 from modules.cluster import Cluster
-from modules.galaxy import Galaxy
 from modules.system import System
 from modules.integrator import *
-from modules.analysis import Analysis
 from modules.plot import Plotter
 from modules.model import *
-import numpy as np
 
 
 ##########################################################################
@@ -17,50 +25,23 @@ import numpy as np
 ##########################################################################
 
 # Simulation parameters
-model_name = "kepler"       # The name of the model
 dt = 0.01                   # The step size
 output_dt = 0.01            # The output timestep to save data
-tmax = 10                   # The max timestep
-output = "body.dat"         # The output filename to store the data
-use_analysis = True        # A flag for using the analysis tool
-plot_data = True            # A flag for plotting data
-
+tmax = 10 * PI            # The max timestep
 
 
 ##########################################################################
-# INITIAL CONDITIONS
+# SET UP THE SYSTEM 
 ##########################################################################
 
-# Store the current model
-if model_name.lower() == "kepler":
-    model = KeplerModel(
-        a       = 1.0, 
-        e       = 0.6,
-        v_mul   = 1.0,
-    )
-
-elif model_name.lower() == "isochrone":
-    model = IsochroneModel(
-        b       = 0.1,
-        v_esc   = 0.5,
-    )
-
-elif model_name.lower() == "oscillator":
-    model = OscillatorModel(
-        rho     = 0.5,
-    )
-
-elif model_name.lower() == "logarithmic":
-    model = LogarithmicModel(
-        v0     = 1.0,
-        Rc     = 0.2,
-        q      = 0.8,
-        v_mul  = 0.5,
-    )
-
-else:
-    raise Exception("Invalid model name used.")
-
+# Create the model
+model = LogarithmicModel(
+    v0     = 1.0,
+    Rc     = 0.2,
+    q      = 0.8,
+    v_mul  = 1.0,
+    use_v_circ = False
+)
 
 # Create a cluster
 cluster = Cluster(
@@ -86,12 +67,7 @@ time = Time(0, tmax, dt)
 ##########################################################################
 
 integrator = LeapFrogIntegrator()
-integrator.execute(system, time, output, output_timestep = output_dt)
-
-# If using the analysis tool
-if use_analysis:
-    analysis = Analysis("output/body_00000.dat", True)
-    analysis.output()
+integrator.execute(system, time, "body.dat", output_timestep = output_dt)
 
 
 
@@ -99,9 +75,6 @@ if use_analysis:
 # CREATES PLOT
 ##########################################################################
 
-# If plotting data
-if plot_data:
-
-    # Creates a plotter with the outputs
-    plotter = Plotter()
-    plotter.ask_plot()
+# Creates a plotter and asks user for plotting values
+plotter = Plotter()
+plotter.ask_plot()

@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
 
+'''
+EXAMPLE CASE: GALACTIC COLLISION
+
+This is an example on how to code a galaxy collision with the N-body-code.
+This code showcases uses the M51 galaxy initial conditions and the collision with the smaller galaxy.
+
+NOTE:
+This code takes a long time to simulate.
+'''
+
 # Include previous directory
 import sys
 sys.path.append("../")
@@ -12,17 +22,28 @@ from modules.system import System
 from modules.integrator import *
 from modules.plot import Plotter
 from modules.model import *
-import numpy as np
 
 
 ##########################################################################
 # PARAMETERS
 ##########################################################################
 
-# Time parameters
-dt = 0.2                        # The step size
-output_dt = 10                  # The output timestep to save data
-tmax = 5000                     # The max timestep
+# Time Parameters
+dt          = 0.2                   # The step size
+output_dt   = 10                    # The output timestep to save data
+tmax        = 5000                  # The max timestep
+
+# Galaxy Parameters
+rmin        = 25                    # The minimum distance between the two galaxies
+e           = 0.8                   # The eccentricity of the galactic orbit
+mass_g_a    = 1.0                   # The mass of Galaxy A [10^11 Msun]
+mass_g_b    = 1.0/3.0               # The mass of Galaxy B [10^11 Msun]
+theta_g_a   = 0                     # The inclination angle of Galaxy A [degrees]
+theta_g_b   = -70                   # The inclination angle of Galaxy B [degrees]
+spacing_g_a = 3                     # The ring spaing of Galaaxy A [kpc]
+spacing_g_b = 3                     # The ring spaing of Galaaxy B [kpc]
+bodies_g_a  = 120                   # The number of test bodies of Galaxy A
+bodies_g_b  = 120                   # The number of test bodies of Galaxy B
 
 
 
@@ -33,41 +54,36 @@ tmax = 5000                     # The max timestep
 # Store the current model
 model = KeplerModel()
 
-# Galaxy variables
-galaxy_mass_a = 1.0
-galaxy_mass_b = 1.0/3.0
-rmin = 25
-e = 0.8
-
-# Calculated variables
-M = sum([galaxy_mass_a, galaxy_mass_b])
-a = rmin / (1.0 - e)
-r = a * (1.0 + e)
-v_0 = np.sqrt(a * (1 - e ** 2) * M) / r 
+# Calculated Variables
+M = sum([mass_g_a, mass_g_b])               # Total Mass
+a = rmin / (1.0 - e)                        # Semi-Major Axis
+r = a * (1.0 + e)                           # Separation Distance
+v_0 = ((a * (1 - e ** 2) * M) ** 0.5) / r   # Base Velocity Factor
+model = KeplerModel()                       # The model of the system used
 
 
 ##########################################################################
 # GALAXY A
 ##########################################################################
 
-# Create the galaxy state vectors
+# Create the Galaxy A state vectors
 galaxy_state_a = State(
-    Vector(r * galaxy_mass_a / M, 0, 0),
-    Vector(0, v_0 * galaxy_mass_a / M, 0),
+    Vector(-r * mass_g_b / M, 0, 0),
+    Vector(0, -v_0 * mass_g_b / M, 0),
     Vector()
 )
 
-# Create the first galaxy
+# Create Galaxy A
 galaxy_a = Galaxy(
-    n_bodies = 120,
-    mass = galaxy_mass_a,
-    ring_spacing = 3,
-    theta = 0,
+    n_bodies = bodies_g_a,
+    mass = mass_g_a,
+    ring_spacing = spacing_g_a,
+    theta = theta_g_a * DEG2RAD,
     galaxy_pos = galaxy_state_a.x,
     galaxy_vel = galaxy_state_a.v,
 )
 
-# Create the first cluster
+# Create the cluster for Galaxy A
 cluster_a = Cluster(
     model, 
     n_bodies = galaxy_a.n_bodies, 
@@ -81,24 +97,24 @@ cluster_a = Cluster(
 # GALAXY B
 ##########################################################################
 
-# Get the second galaxy state
+# Create the Galaxy B state vectors
 galaxy_state_b = State(
-    Vector(-r * galaxy_mass_b / M, 0, 0),
-    Vector(0, -v_0 * galaxy_mass_b / M, 0),
+    Vector(r * mass_g_a / M, 0, 0),
+    Vector(0, v_0 * mass_g_a / M, 0),
     Vector()
 )
 
-# Create the second galaxy
+# Create Galaxy B
 galaxy_b = Galaxy(
-    n_bodies = 120,
-    mass = galaxy_mass_b,
-    ring_spacing = 3,
-    theta = -70 * DEG2RAD,
+    n_bodies = bodies_g_b,
+    mass = mass_g_b,
+    ring_spacing = spacing_g_b,
+    theta = theta_g_b * DEG2RAD,
     galaxy_pos = galaxy_state_b.x,
     galaxy_vel = galaxy_state_b.v,
 )
 
-# Create the second cluster
+# Create the cluster for Galaxy B
 cluster_b = Cluster(
     model, 
     n_bodies = galaxy_b.n_bodies, 
@@ -112,13 +128,8 @@ cluster_b = Cluster(
 # SYSTEM
 ##########################################################################
 
-# Create an array of clusters
-clusters = [cluster_a, cluster_b]
-
 # Create the system
-system = System(
-    clusters
-)
+system = System (clusters = [cluster_a, cluster_b])
 
 # Create the time step
 time = Time(0, tmax, dt)
@@ -129,6 +140,7 @@ time = Time(0, tmax, dt)
 # INTEGRATOR
 ##########################################################################
 
+# Create the integrator and execute the integration
 integrator = LeapFrogIntegrator()
 integrator.execute(system, time, "body.dat", output_timestep = output_dt)
 
@@ -178,3 +190,7 @@ plotter.plot(
     title = "M51 Energy Conservation over Time",
     save = "M51_energy.png",
 )
+
+# Ask plot for user input
+plotter = Plotter()
+plotter.ask_plot()
